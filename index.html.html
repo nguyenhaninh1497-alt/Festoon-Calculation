@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CraneCableCalc — Festoon &amp; fixed cable calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ECEDE8;--card:#FFF;--ink:#14181B;--muted:#697069;--rule:#D3D7D0;
+    --dark:#171A1C;--hazard:#F5C518;--cable:#3FBFB4;--warn:#C4452F;--ok:#3F8F5B;
+    --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+    --body:"Be Vietnam Pro","Segoe UI",Tahoma,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:13px;line-height:1.5}
+  .wrap{max-width:1340px;margin:0 auto;padding:18px 20px 60px}
+  .stripe{height:8px;background:repeating-linear-gradient(115deg,var(--hazard) 0 14px,var(--dark) 14px 28px);margin-bottom:14px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  h1{font-size:25px;margin:0;font-weight:700;letter-spacing:-.01em}
+  header .sub{font-family:var(--mono);font-size:11px;color:var(--muted);flex:1}
+  header select{width:auto;min-width:74px}
+
+  .card{background:var(--card);border:1px solid var(--rule);padding:14px 15px 16px;margin-bottom:16px}
+  .card h2{font-size:15px;margin:0 0 4px;font-weight:600;padding-bottom:7px;border-bottom:1px solid var(--rule)}
+  .card h2 .note{font-weight:400;font-size:11.5px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:342px 1fr;gap:16px;align-items:start}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  fieldset{border:0;padding:0;margin:0 0 14px}
+  legend{font-size:11px;font-weight:600;color:var(--muted);padding:0 0 6px}
+  .row{display:grid;grid-template-columns:1fr 88px;gap:8px;align-items:center;margin-bottom:6px}
+  .row label{font-size:12px}
+  .row .u{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  input,select{width:100%;font-family:var(--mono);font-size:12px;padding:4px 6px;border:1px solid var(--rule);background:#FBFBF9;color:var(--ink)}
+  input:focus,select:focus{outline:2px solid var(--hazard);outline-offset:-1px;background:#fff}
+  input[type=range]{padding:0;border:0;background:transparent}
+  input[type=checkbox]{width:auto}
+
+  .draw{background:var(--dark);border:1px solid var(--dark);overflow:hidden}
+  .draw .bar{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border-bottom:1px solid #2B3033;font-family:var(--mono);font-size:11px;color:#8C948F}
+  .draw .bar b{color:var(--hazard);font-weight:500}
+  .slid{display:flex;gap:10px;align-items:center;padding:8px 12px;border-top:1px solid #2B3033}
+  .slid label{font-family:var(--mono);font-size:11px;color:#8C948F;white-space:nowrap}
+  svg{display:block;width:100%;height:auto}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:10px;margin:16px 0}
+  .kpi{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--hazard);padding:9px 11px}
+  .kpi .k{font-size:11px;color:var(--muted)}
+  .kpi .v{font-family:var(--mono);font-size:22px;font-weight:600;line-height:1.3}
+  .kpi .v small{font-size:12px;font-weight:400;color:var(--muted);font-family:var(--body)}
+
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11.5px}
+  th,td{border:1px solid var(--rule);padding:4px 7px;text-align:right;white-space:nowrap}
+  th{background:#F4F5F1;font-family:var(--body);font-size:11px;color:var(--muted);font-weight:600;text-align:right}
+  th:first-child,td:first-child,th.l,td.l{text-align:left}
+  tr.hi td{background:#FFF8DC;font-weight:600}
+  tr.sum td{background:#F4F5F1;font-weight:600}
+  td input{border:0;background:transparent;padding:2px 0;text-align:right;font-size:11.5px}
+  td.l input{text-align:left}
+  td.bad{color:var(--warn);font-weight:600}
+  .scroll{overflow-x:auto}
+  .btn{font-family:var(--body);font-size:11.5px;font-weight:500;padding:6px 11px;border:1px solid var(--ink);background:var(--card);cursor:pointer}
+  .btn:hover{background:var(--hazard)}
+  .btn.sm{padding:2px 8px;font-size:11px}
+  .tools{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .hint{font-size:11.5px;color:var(--muted)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:980px){.two{grid-template-columns:1fr}}
+  .flag{font-size:12px;padding:6px 9px;margin-top:7px;border-left:3px solid var(--ok);background:#F1F7F2}
+  .flag.bad{border-color:var(--warn);background:#FBF0EE}
+  details{background:var(--card);border:1px solid var(--rule);padding:12px 15px;margin-bottom:16px}
+  summary{font-size:15px;font-weight:600;cursor:pointer}
+  details p{font-size:12.5px}
+  code{font-family:var(--mono);background:#F4F5F1;padding:1px 4px;font-size:11.5px}
+  .foot{font-size:11.5px;color:var(--muted);border-top:1px solid var(--rule);padding-top:10px}
+  .hide{display:none!important}
+  .pick{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:10px 0 20px}
+  @media(max-width:860px){.pick{grid-template-columns:1fr}}
+  .pcard{background:var(--card);border:1px solid var(--rule);border-top:5px solid var(--hazard);padding:18px 20px 20px;cursor:pointer;text-align:left;font-family:var(--body);color:var(--ink)}
+  .pcard:hover{background:#FFFDF3;border-color:var(--ink)}
+  .pcard .num{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+  .pcard h3{margin:4px 0 6px;font-size:17px;font-weight:700}
+  .pcard p{margin:0 0 10px;font-size:12.5px;color:var(--muted);line-height:1.55}
+  .pcard ul{margin:0;padding-left:17px;font-size:12px;line-height:1.7}
+  .pcard ul li::marker{color:var(--cable)}
+  .pintro{font-size:13px;color:var(--muted);margin:2px 0 0}
+  .modetag{font-family:var(--mono);font-size:10.5px;background:var(--dark);color:var(--hazard);padding:2px 8px;letter-spacing:.06em}
+  .chip{display:inline-block;font-family:var(--mono);font-size:10.5px;border:1px solid var(--rule);background:#F4F5F1;padding:1px 6px;margin:0 4px 3px 0}
+  td select{border:0;background:transparent;font-size:11px;padding:2px 0;width:100%}
+  tr.grp td{background:#EEF0EB;text-align:left;font-family:var(--body);font-size:11.5px;font-weight:600;color:var(--muted)}
+  .subrow td{color:var(--muted)}
+  .scroll table{width:auto;min-width:100%}
+  td.l input{min-width:152px}
+  td input[type=number]{min-width:56px}
+  td select{min-width:94px}
+  th{white-space:nowrap}
+  .row.hastip label{cursor:help}
+  .row.hastip label>span:first-child,.row.hastip>label{border-bottom:1px dotted #A9AFA8}
+  .tip{position:fixed;display:none;z-index:99;width:310px;background:var(--dark);color:#E4E7E1;
+   border-left:3px solid var(--hazard);padding:10px 12px 11px;font-size:11.5px;line-height:1.6;
+   box-shadow:0 8px 26px rgba(0,0,0,.30);pointer-events:none}
+  .tip b{display:block;color:var(--hazard);font-size:12.5px;font-weight:600;margin-bottom:4px}
+  .tip i{display:block;margin-top:6px;padding-top:5px;border-top:1px solid #2B3033;
+   font-style:normal;font-family:var(--mono);font-size:10.5px;color:#8C948F}
+  @media print{#modepick,#btnback,.tip{display:none}}
+  @media print{.draw{background:#fff}.btn,.slid,.tools,header select{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="stripe"></div>
+<header>
+  <h1>CraneCableCalc</h1>
+  <span class="modetag" id="hmode"></span>
+  <div class="sub" id="hsub">Crane cable sizing suite · v2.0</div>
+  <button class="btn sm hide" id="btnback" onclick="setMode(0)" data-t="b_back">← Đổi chế độ</button>
+  <select id="lang"><option value="vi">Tiếng Việt</option><option value="en">English</option></select>
+</header>
+
+<div id="modepick">
+  <p class="pintro" data-t="p_intro">Chọn bài toán cần tính. Mọi thông số nhập ở hai chế độ đều lưu chung trong một file hồ sơ.</p>
+  <div class="pick">
+    <button class="pcard" onclick="setMode(1)">
+      <div class="num">MODE 01</div>
+      <h3 data-t="p1_h">Cáp trên festoon</h3>
+      <p data-t="p1_p">Hình học hệ festoon: số xe cáp, bước vòng, độ võng, chiều dài ray, chiều dài cáp treo và chọn tiết diện cho phần cáp di động.</p>
+      <ul>
+        <li data-t="p1_a">Catenary — võng khi giãn / khi gom</li>
+        <li data-t="p1_b">Số xe cáp, chiều dài ray, tải mỗi xe</li>
+        <li data-t="p1_c">Tiết diện + sụt áp cáp động lực trên festoon</li>
+        <li data-t="p1_d">Vật tư hệ festoon</li>
+      </ul>
+    </button>
+    <button class="pcard" onclick="setMode(2)">
+      <div class="num">MODE 02</div>
+      <h3 data-t="p2_h">Cáp ngoài festoon</h3>
+      <p data-t="p2_p">Các tuyến cáp cố định còn lại của cẩu — phần chưa nằm trong bài toán festoon.</p>
+      <ul>
+        <li data-t="p2_a">① Nhà điện → điểm cấp festoon (feeder)</li>
+        <li data-t="p2_b">② Festoon → động cơ (nhánh, phanh)</li>
+        <li data-t="p2_c">③ Cáp instrument / tín hiệu / mạng</li>
+        <li data-t="p2_d">Sụt áp cộng dồn cả 3 đoạn + bảng cable schedule</li>
+      </ul>
+    </button>
+    <button class="pcard" onclick="setMode(3)">
+      <div class="num">MODE 03</div>
+      <h3 data-t="p3_h">Thanh dẫn điện (trolley bar)</h3>
+      <p data-t="p3_p">Tuyến cấp điện dọc nhà xưởng cho cả bay: chọn dòng định mức, số điểm cấp nguồn, sụt áp dọc thanh và bóc vật tư.</p>
+      <ul>
+        <li data-t="p3_a">Dòng bay theo số cẩu + hệ số đồng thời</li>
+        <li data-t="p3_b">Sụt áp dọc thanh theo điểm cấp nguồn</li>
+        <li data-t="p3_c">Bracket, insulator, joint keeper, khe giãn nở</li>
+        <li data-t="p3_d">Preset 5 bay của gói 2-1 / 2-2</li>
+      </ul>
+    </button>
+  </div>
+</div>
+
+<div id="mode1" class="hide">
+
+<div class="grid">
+ <div>
+  <div class="card">
+    <h2 data-t="h_in">Thông số đầu vào</h2>
+
+    <fieldset>
+      <legend data-t="g1">1 · Dự án &amp; cẩu</legend>
+      <div class="row"><label data-t="i_prj">Dự án</label><input id="prj" placeholder="—"></div>
+      <div class="row"><label data-t="i_tag">Mã cẩu</label><input id="tag" placeholder="—"></div>
+      <div class="row"><label><span data-t="i_span">Khẩu độ / chiều dài chạy</span> <span class="u">m</span></label><input id="span" type="number" step="0.1" value="25"></div>
+      <div class="row"><label><span data-t="i_dead">Trừ 2 đầu</span> <span class="u">m</span></label><input id="dead" type="number" step="0.1" value="2.0"></div>
+      <div class="row"><label><span data-t="i_qty">Số cẩu áp dụng</span></label><input id="qty" type="number" step="1" value="1"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="g2">2 · Không gian &amp; cáp</legend>
+      <div class="row"><label><span data-t="i_h">Độ sâu võng cho phép</span> <span class="u">m</span></label><input id="hmax" type="number" step="0.05" value="1.20"></div>
+      <div class="row"><label data-t="i_ct">Loại cáp</label>
+        <select id="ctype"><option value="round" data-t="o_rnd">Tròn</option><option value="flat" data-t="o_flat">Dẹt</option></select></div>
+      <div class="row"><label data-t="i_k">Hệ số bán kính uốn k (R = k·d)</label><input id="kbend" type="number" step="0.5" value="8"></div>
+      <div class="row"><label data-t="i_r">Hệ số chùng khi giãn s/a</label><input id="ratio" type="number" step="0.01" value="1.10"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="g3">3 · Xe cáp</legend>
+      <div class="row"><label><span data-t="i_b">Bề rộng xe khi gom</span> <span class="u">m</span></label><input id="bpark" type="number" step="0.01" value="0.15"></div>
+      <div class="row"><label><span data-t="i_sd">Cáp vắt qua yên xe</span> <span class="u">m</span></label><input id="saddle" type="number" step="0.01" value="0.12"></div>
+      <div class="row"><label><span data-t="i_ex">Tay kéo + chặn cuối</span> <span class="u">m</span></label><input id="extra" type="number" step="0.05" value="0.60"></div>
+      <div class="row"><label><span data-t="i_bk">Bước giá đỡ ray</span> <span class="u">m</span></label><input id="bkt" type="number" step="0.1" value="1.0"></div>
+      <div class="row"><label><span data-t="i_wc">Tải cho phép mỗi xe cáp</span> <span class="u">kg</span></label><input id="wcar" type="number" step="1" value="25"></div>
+      <div class="row"><label data-t="i_nf">Ép số xe cáp (0 = tự tính)</label><input id="nforce" type="number" step="1" value="0"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="g4">4 · Dự phòng</legend>
+      <div class="row"><label><span data-t="i_tf">Đuôi cáp đầu cố định</span> <span class="u">m</span></label><input id="tailF" type="number" step="0.5" value="3"></div>
+      <div class="row"><label><span data-t="i_tm">Đuôi cáp đầu di động</span> <span class="u">m</span></label><input id="tailM" type="number" step="0.5" value="3"></div>
+      <div class="row"><label><span data-t="i_mg">Hao hụt / dự phòng</span> <span class="u">%</span></label><input id="marg" type="number" step="1" value="5"></div>
+      <div class="row"><label><span data-t="i_sp">Chừa chỗ cáp thêm</span> <span class="u">%</span></label><input id="spare" type="number" step="5" value="20"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="g5">5 · Điện</legend>
+      <div class="row"><label data-t="i_std">Tiêu chuẩn cỡ cáp</label>
+        <select id="std"><option value="awg">AWG / NEC</option><option value="mm">mm² / IEC</option></select></div>
+      <div class="row"><label><span data-t="i_u">Điện áp động lực</span> <span class="u">V</span></label><input id="volt" type="number" step="10" value="400"></div>
+      <div class="row"><label data-t="i_kt">Hệ số nhiệt độ môi trường</label><input id="kT" type="number" step="0.01" value="0.91"></div>
+      <div class="row"><label data-t="i_kb">Hệ số bó cáp</label><input id="kB" type="number" step="0.05" value="0.70"></div>
+      <div class="row"><label data-t="i_kd">Hệ số chu kỳ làm việc</label><input id="kD" type="number" step="0.05" value="1.00"></div>
+      <div class="row"><label><span data-t="i_le">Tuyến cáp ngoài festoon</span> <span class="u">m</span></label><input id="Lext" type="number" step="1" value="20"></div>
+      <div class="row"><label><span data-t="i_dv">Sụt áp cho phép</span> <span class="u">%</span></label><input id="dvmax" type="number" step="0.5" value="3"></div>
+    </fieldset>
+
+    <div class="tools">
+      <button class="btn sm" onclick="saveJSON()" data-t="b_save">Lưu hồ sơ</button>
+      <button class="btn sm" onclick="document.getElementById('fin').click()" data-t="b_open">Mở hồ sơ</button>
+      <button class="btn sm" onclick="resetAll()" data-t="b_reset">Đặt lại</button>
+      <input type="file" id="fin" accept=".json" style="display:none" onchange="loadJSON(this)">
+    </div>
+  </div>
+ </div>
+
+ <div>
+    <div class="draw">
+      <div class="bar"><span data-t="d_title">Mặt đứng hệ festoon</span><span><b id="dtag"></b> · <span id="dstate"></span></span></div>
+      <svg id="svg" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="slid">
+        <label data-t="d_pos">Vị trí xe con</label>
+        <input id="pos" type="range" min="0" max="100" value="100">
+        <label id="posv" style="width:52px;text-align:right">100 %</label>
+      </div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+    <div id="checks" style="margin-bottom:16px"></div>
+
+    <div class="card">
+      <h2><span data-t="h_mot">Động cơ cấp nguồn qua festoon</span>
+        <span class="note" data-t="h_mot2">— chỉ thiết bị nằm trên phần di động</span></h2>
+      <div class="scroll"><table id="mtab"><thead><tr>
+        <th class="l" data-t="t_dev">Thiết bị</th><th>kW</th><th>η</th><th>cosφ</th><th data-t="t_q">SL</th>
+        <th data-t="t_inv">Inv</th><th data-t="t_brk">Phanh</th><th data-t="t_enc">Enc</th>
+        <th>I (A)</th><th data-t="t_ir">I yêu cầu</th><th data-t="t_sz">Tiết diện</th><th>OD mm</th><th>kg/m</th><th>ΔU %</th><th></th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="tools">
+        <button class="btn sm" onclick="addMotor()" data-t="b_addm">+ Thêm động cơ</button>
+        <span class="hint" data-t="hint_m">Inv = qua biến tần · Phanh = cộng cáp phanh · Enc = cộng cáp encoder có màn chắn</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span data-t="h_oth">Cáp khác trên festoon</span> <span class="note" data-t="h_oth2">— điều khiển, chiếu sáng, mạng, cảm biến</span></h2>
+      <table id="otab"><thead><tr>
+        <th class="l" data-t="t_cab">Cáp</th><th>OD mm</th><th>kg/m</th><th data-t="t_core">Sợi</th><th data-t="t_mcr">m/cẩu</th><th></th>
+      </tr></thead><tbody></tbody></table>
+      <div class="tools">
+        <button class="btn sm" onclick="addOther()" data-t="b_addc">+ Thêm cáp</button>
+        <button class="btn sm" onclick="copyAll()" data-t="b_copy">Copy sang Excel</button>
+        <button class="btn sm" onclick="window.print()" data-t="b_print">In</button>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card"><h2 data-t="h_sum">Tổng hợp cáp</h2><table id="sumtab"></table></div>
+      <div class="card"><h2 data-t="h_bom">Vật tư hệ festoon (1 cẩu)</h2><table id="bom"></table></div>
+    </div>
+
+    <div class="card">
+      <h2 data-t="h_sens">Độ nhạy theo số xe cáp</h2>
+      <div class="scroll"><table id="sens"><thead><tr>
+        <th data-t="s_n">Số xe n</th><th data-t="s_a">Bước a (m)</th><th data-t="s_fe">Võng khi giãn (m)</th>
+        <th data-t="s_fp">Võng khi gom (m)</th><th data-t="s_s">Cáp/vòng (m)</th><th data-t="s_l">Cáp/sợi (m)</th>
+        <th data-t="s_r">R đáy (mm)</th><th data-t="s_w">kg/xe</th>
+      </tr></thead><tbody></tbody></table></div>
+    </div>
+ </div>
+</div>
+
+<details>
+  <summary data-t="h_basis">Cơ sở tính toán</summary>
+  <div id="basis"></div>
+</details>
+</div>
+
+<div id="mode2" class="hide">
+ <div class="grid">
+  <div>
+   <div class="card">
+    <h2><span data-t="m2_hin">Thông số chung</span></h2>
+    <div class="hint" data-t="m2_inh">Điện áp động lực, tiêu chuẩn cỡ cáp và số cẩu lấy theo mode 1.</div>
+
+    <fieldset>
+      <legend data-t="m2_g1">1 · Kích thước</legend>
+      <div class="row"><label><span data-t="m2_span">Khẩu độ cầu</span> <span class="u">m</span></label><input id="Lspan" type="number" step="0.5" value="25"></div>
+      <div class="row"><label><span data-t="m2_pp">Vị trí tủ tính từ đầu dầm trái</span> <span class="u">%</span></label><input id="ppos" type="number" step="5" value="65"></div>
+      <div class="tools"><button class="btn sm" onclick="applySpan()" data-t="m2_bapp">Lấy khẩu độ từ mode 1 &amp; điền chiều dài tuyến</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="m2_g2">2 · Điện</legend>
+      <div class="row"><label><span data-t="m2_ui">Điện áp mạch tín hiệu</span> <span class="u">V</span></label><input id="volti" type="number" step="1" value="24"></div>
+      <div class="row"><label data-t="m2_kcor">Hệ số hiệu chỉnh dòng</label><input id="kcor" type="number" step="0.01" value="0.73"></div>
+      <div class="row"><label data-t="m2_kc">Hệ số dòng liên tục</label><input id="kcont" type="number" step="0.05" value="1.25"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="m2_g3">3 · Sụt áp</legend>
+      <div class="row"><label><span data-t="m2_dvl">Giới hạn từng đoạn</span> <span class="u">%</span></label><input id="dvlim" type="number" step="0.5" value="3"></div>
+      <div class="row"><label><span data-t="m2_dvt">Σ tới động cơ xe con</span> <span class="u">%</span></label><input id="dvtot" type="number" step="0.5" value="5"></div>
+      <div class="row"><label data-t="m2_cum">Cộng dồn đoạn festoon (mode 1)</label><input id="cum" type="checkbox" checked></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="m2_g4">4 · Chiều dài &amp; dự phòng</legend>
+      <div class="row"><label><span data-t="m2_sl">Chừa đấu nối mỗi đầu</span> <span class="u">m</span></label><input id="slack" type="number" step="0.5" value="1.5"></div>
+      <div class="row"><label><span data-t="m2_al">Hao hụt / đi vòng</span> <span class="u">%</span></label><input id="allow" type="number" step="1" value="8"></div>
+      <div class="row"><label data-t="m2_df">Hệ số đồng thời tính feeder</label><input id="divf" type="number" step="0.05" value="0.80"></div>
+    </fieldset>
+
+    <div class="tools">
+      <button class="btn sm" onclick="saveJSON()" data-t="b_save">Lưu hồ sơ</button>
+      <button class="btn sm" onclick="document.getElementById('fin').click()" data-t="b_open">Mở hồ sơ</button>
+      <button class="btn sm" onclick="reset2()" data-t="b_reset">Đặt lại</button>
+    </div>
+   </div>
+  </div>
+
+  <div>
+    <div class="draw">
+      <div class="bar"><span data-t="m2_dt">Sơ đồ cấp điện trên xe lớn</span><span><b id="d2tag"></b> · <span id="d2state"></span></span></div>
+      <svg id="svg2" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="kpis" id="kpis2"></div>
+    <div id="checks2" style="margin-bottom:16px"></div>
+
+    <div class="card">
+      <h2><span data-t="m2_h1">① Tủ điện chính → hệ festoon</span> <span class="note" data-t="m2_h1n">— chạy dọc dầm từ tủ giữa cầu ra điểm cấp festoon</span></h2>
+      <div class="scroll"><table id="t1"><thead><tr>
+        <th class="l" data-t="m2_c_tag">Tuyến</th><th class="l" data-t="m2_c_from">Từ</th><th class="l" data-t="m2_c_to">Đến</th>
+        <th>kW</th><th data-t="m2_c_amp">I nhập (A)</th><th>η</th><th>cosφ</th><th data-t="m2_c_ph">Pha</th>
+        <th data-t="m2_c_L">L tuyến (m)</th><th data-t="m2_c_par">Song song</th><th data-t="t_q">SL</th>
+        <th>I (A)</th><th data-t="t_ir">I yêu cầu</th><th data-t="t_sz">Tiết diện</th><th>OD</th><th>ΔU %</th><th data-t="m2_c_len">Σ m</th><th></th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="tools">
+        <button class="btn sm" onclick="addS1()" data-t="m2_b1">+ Thêm tuyến</button>
+        <button class="btn sm" onclick="loadTotal()" data-t="m2_b1b">Lấy tổng tải xe con từ mode 1</button>
+        <span class="hint" data-t="m2_hint1">I nhập &gt; 0 sẽ được dùng thay cho kW · tiết diện "auto" chọn theo cả ampacity lẫn sụt áp</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span data-t="m2_h2">② Tủ điện chính → động cơ xe lớn</span> <span class="note" data-t="m2_h2n">— tuyến chạy về hai đầu dầm, kể cả phanh và encoder</span></h2>
+      <div class="scroll"><table id="t2"><thead><tr>
+        <th class="l" data-t="t_dev">Thiết bị</th><th>kW</th><th data-t="m2_c_amp">I nhập (A)</th><th>η</th><th>cosφ</th>
+        <th data-t="m2_c_ph">Pha</th><th data-t="m2_c_L">L (m)</th><th data-t="t_q">SL</th><th data-t="t_brk">Phanh</th><th data-t="t_enc">Enc</th>
+        <th>I (A)</th><th data-t="t_ir">I yêu cầu</th><th data-t="t_sz">Tiết diện</th><th>OD</th><th>ΔU %</th><th data-t="m2_c_len">Σ m</th><th></th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="tools">
+        <button class="btn sm" onclick="addS2()" data-t="m2_b2">+ Thêm thiết bị</button>
+        <span class="hint" data-t="m2_hint2">Chiều dài mặc định = khoảng cách từ tủ tới đầu dầm gần / xa + 6 m đi xuống động cơ</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span data-t="m2_h3">③ Cáp instrument / tín hiệu</span> <span class="note" data-t="m2_h3n">— cảm biến, encoder, chống va, mạng, camera</span></h2>
+      <div class="scroll"><table id="t3"><thead><tr>
+        <th class="l" data-t="m2_c_tagi">Thiết bị / tín hiệu</th><th class="l" data-t="m2_c_route">Tuyến</th><th data-t="t_cab">Loại cáp</th>
+        <th data-t="m2_c_L">L (m)</th><th data-t="t_q">SL</th><th data-t="m2_c_I">I tải (A)</th><th>OD</th><th>kg/m</th><th>ΔU %</th><th data-t="m2_c_len">Σ m</th><th></th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="tools">
+        <button class="btn sm" onclick="addS3()" data-t="m2_b3">+ Thêm cáp</button>
+        <button class="btn sm" onclick="copy2()" data-t="b_copy">Copy sang Excel</button>
+        <button class="btn sm" onclick="window.print()" data-t="b_print">In</button>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card"><h2 data-t="m2_hsum">Tổng hợp theo đoạn tuyến</h2><table id="sum2"></table></div>
+      <div class="card"><h2 data-t="m2_hbom">Vật tư phụ trợ (1 cẩu)</h2><table id="bom2"></table></div>
+    </div>
+ </div>
+ </div>
+
+ <details>
+  <summary data-t="h_basis">Cơ sở tính toán</summary>
+  <div id="basis2"></div>
+ </details>
+</div>
+
+
+<div id="mode3" class="hide">
+ <div class="grid">
+  <div>
+   <div class="card">
+    <h2 data-t="m3_hin">Thông số đầu vào</h2>
+
+    <fieldset>
+      <legend data-t="m3_g1">1 · Bay &amp; cẩu</legend>
+      <div class="row"><label data-t="i_prj">Dự án</label><input id="prj3" placeholder="—"></div>
+      <div class="row"><label data-t="m3_bay">Bay (theo hồ sơ gói)</label>
+        <select id="bay3" onchange="loadBay()"></select></div>
+      <div class="row"><label><span data-t="m3_ltr">Chiều dài chạy dọc (thanh dẫn)</span> <span class="u">m</span></label><input id="Ltr" type="number" step="1" value="250"></div>
+      <div class="row"><label><span data-t="m3_tor">T.O.R</span> <span class="u">m</span></label><input id="tor" type="number" step="0.5" value="10"></div>
+      <div class="row"><label data-t="m3_ncr">Số cẩu trên bay</label><input id="ncr" type="number" step="1" value="2"></div>
+      <div class="row"><label><span data-t="m3_icr">Dòng mỗi cẩu</span> <span class="u">A</span></label><input id="Icr" type="number" step="1" value="170"></div>
+      <div class="row"><label data-t="m2_df">Hệ số đồng thời</label><input id="divf3" type="number" step="0.05" value="0.80"></div>
+      <div class="tools"><button class="btn sm" onclick="loadIcr()" data-t="m3_bimp">Lấy dòng từ chế độ 2</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="m3_g2">2 · Điện</legend>
+      <div class="row"><label><span data-t="i_u">Điện áp thanh dẫn</span> <span class="u">V</span></label><input id="volt3" type="number" step="10" value="480"></div>
+      <div class="row"><label data-t="m3_np">Số cực (3P + PE)</label><input id="npole" type="number" step="1" value="4"></div>
+      <div class="row"><label data-t="m3_cap">Dòng định mức thanh dẫn</label>
+        <select id="barcap"></select></div>
+      <div class="row"><label><span data-t="m3_r">Điện trở thanh dẫn (0 = theo bảng)</span> <span class="u">mΩ/m</span></label><input id="rmm" type="number" step="0.001" value="0"></div>
+      <div class="row"><label data-t="i_kt">Hệ số nhiệt độ môi trường</label><input id="kT3" type="number" step="0.01" value="0.91"></div>
+      <div class="row"><label data-t="i_kd">Hệ số chu kỳ làm việc</label><input id="kD3" type="number" step="0.05" value="1.00"></div>
+      <div class="row"><label data-t="m2_kc">Hệ số dòng liên tục</label><input id="kcont3" type="number" step="0.05" value="1.25"></div>
+      <div class="row"><label><span data-t="m3_dv">Sụt áp cho phép trên thanh</span> <span class="u">%</span></label><input id="dv3" type="number" step="0.5" value="3"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="m3_g3">3 · Cấp nguồn &amp; phân đoạn</legend>
+      <div class="row"><label><span data-t="m3_fmax">Khoảng cách cấp nguồn tối đa</span> <span class="u">m</span></label><input id="feedmax" type="number" step="10" value="150"></div>
+      <div class="row"><label data-t="m3_nf">Số điểm cấp nguồn (0 = tự tính)</label><input id="nfeed" type="number" step="1" value="0"></div>
+      <div class="row"><label data-t="m3_iso">Số đoạn cách ly (isolation section)</label><input id="nISO" type="number" step="1" value="1"></div>
+      <div class="row"><label data-t="m3_col">Số bộ lấy điện mỗi cẩu (double)</label><input id="ncol" type="number" step="1" value="2"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-t="m3_g4">4 · Quy tắc bóc vật tư</legend>
+      <div class="row"><label><span data-t="m3_bu">Chiều dài 1 đoạn thanh</span> <span class="u">m</span></label><input id="barU" type="number" step="0.5" value="6"></div>
+      <div class="row"><label><span data-t="m3_pb">Bước giá đỡ (bracket)</span> <span class="u">m</span></label><input id="pitchB" type="number" step="0.1" value="1.5"></div>
+      <div class="row"><label><span data-t="m3_pe">Bước khe giãn nở / điểm cố định</span> <span class="u">m</span></label><input id="pitchE" type="number" step="1" value="24"></div>
+      <div class="row"><label><span data-t="m3_pl">Bước đèn báo pha</span> <span class="u">m</span></label><input id="lampP" type="number" step="5" value="50"></div>
+      <div class="row"><label><span data-t="m3_pc">Bước cáp bù áp</span> <span class="u">m</span></label><input id="compP" type="number" step="10" value="100"></div>
+      <div class="hint" data-t="m3_note">Quy tắc mặc định lấy ngược từ sheet "Rail_Trolley Bar" của bảng giá Rev4 (đã kiểm chứng trên 3 bay).</div>
+    </fieldset>
+
+    <div class="tools">
+      <button class="btn sm" onclick="saveJSON()" data-t="b_save">Lưu hồ sơ</button>
+      <button class="btn sm" onclick="document.getElementById('fin').click()" data-t="b_open">Mở hồ sơ</button>
+      <button class="btn sm" onclick="reset3()" data-t="b_reset">Đặt lại</button>
+    </div>
+   </div>
+  </div>
+
+  <div>
+    <div class="draw">
+      <div class="bar"><span data-t="m3_dt">Mặt đứng thanh dẫn điện</span><span><b id="d3tag"></b> · <span id="d3state"></span></span></div>
+      <svg id="svg3" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="kpis" id="kpis3"></div>
+    <div id="checks3" style="margin-bottom:16px"></div>
+
+    <div class="two">
+      <div class="card"><h2 data-t="m3_hres">Kết quả điện</h2><table id="res3"></table></div>
+      <div class="card"><h2 data-t="m3_hbom">Vật tư thanh dẫn (1 bay)</h2><table id="bom3"></table></div>
+    </div>
+
+    <div class="card">
+      <h2><span data-t="m3_hsens">Độ nhạy theo số điểm cấp nguồn</span></h2>
+      <div class="scroll"><table id="sens3"><thead><tr>
+        <th data-t="m3_s_n">Điểm cấp</th><th data-t="m3_s_d">Khoảng cách tới điểm xa nhất (m)</th>
+        <th data-t="m3_s_dv">ΔU (%)</th><th data-t="m3_s_v">ΔU (V)</th><th data-t="m3_s_ok">Đạt</th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="tools">
+        <button class="btn sm" onclick="copy3()" data-t="b_copy">Copy sang Excel</button>
+        <button class="btn sm" onclick="window.print()" data-t="b_print">In</button>
+      </div>
+    </div>
+ </div>
+ </div>
+
+ <details>
+  <summary data-t="h_basis">Cơ sở tính toán</summary>
+  <div id="basis3"></div>
+ </details>
+</div>
+
+<div class="foot" id="foot"></div>
+</div>
+
+<script>
+/* ============ i18n ============ */
+const TXT={
+vi:{h_in:"Thông số đầu vào",g1:"1 · Dự án & cẩu",g2:"2 · Không gian & cáp",g3:"3 · Xe cáp",g4:"4 · Dự phòng",g5:"5 · Điện",
+ i_prj:"Dự án",i_tag:"Mã cẩu",i_span:"Khẩu độ / chiều dài chạy",i_dead:"Trừ 2 đầu",i_qty:"Số cẩu áp dụng",
+ i_h:"Độ sâu võng cho phép",i_ct:"Loại cáp",o_rnd:"Tròn",o_flat:"Dẹt",i_k:"Hệ số bán kính uốn k (R = k·d)",i_r:"Hệ số chùng khi giãn s/a",
+ i_b:"Bề rộng xe khi gom",i_sd:"Cáp vắt qua yên xe",i_ex:"Tay kéo + chặn cuối",i_bk:"Bước giá đỡ ray",i_wc:"Tải cho phép mỗi xe cáp",i_nf:"Ép số xe cáp (0 = tự tính)",
+ i_tf:"Đuôi cáp đầu cố định",i_tm:"Đuôi cáp đầu di động",i_mg:"Hao hụt / dự phòng",i_sp:"Chừa chỗ cáp thêm",
+ i_std:"Tiêu chuẩn cỡ cáp",i_u:"Điện áp động lực",i_kt:"Hệ số nhiệt độ môi trường",i_kb:"Hệ số bó cáp",i_kd:"Hệ số chu kỳ làm việc",i_le:"Tuyến cáp ngoài festoon",i_dv:"Sụt áp cho phép",
+ b_save:"Lưu hồ sơ",b_open:"Mở hồ sơ",b_reset:"Đặt lại",b_addm:"+ Thêm động cơ",b_addc:"+ Thêm cáp",b_copy:"Copy sang Excel",b_print:"In",
+ d_title:"Mặt đứng hệ festoon",d_pos:"Vị trí xe con",
+ h_mot:"Động cơ cấp nguồn qua festoon",h_mot2:"— chỉ thiết bị nằm trên phần di động",
+ hint_m:"Inv = qua biến tần · Phanh = cộng cáp phanh · Enc = cộng cáp encoder có màn chắn",
+ h_oth:"Cáp khác trên festoon",h_oth2:"— điều khiển, chiếu sáng, mạng, cảm biến",
+ h_sum:"Tổng hợp cáp",h_bom:"Vật tư hệ festoon (1 cẩu)",h_sens:"Độ nhạy theo số xe cáp",h_basis:"Cơ sở tính toán",
+ t_dev:"Thiết bị",t_q:"SL",t_inv:"Inv",t_brk:"Phanh",t_enc:"Enc",t_ir:"I yêu cầu",t_sz:"Tiết diện",t_cab:"Cáp",t_core:"Sợi",t_mcr:"m/cẩu",
+ s_n:"Số xe n",s_a:"Bước a (m)",s_fe:"Võng khi giãn (m)",s_fp:"Võng khi gom (m)",s_s:"Cáp/vòng (m)",s_l:"Cáp/sợi (m)",s_r:"R đáy (mm)",s_w:"kg/xe",
+ k_n:"Số xe cáp",k_a:"Bước vòng a",k_rail:"Chiều dài ray festoon",k_s:"Cáp mỗi vòng",k_lper:"Chiều dài 1 sợi",k_core:"Tổng số sợi",k_tot:"Tổng cáp × {q} cẩu",
+ u_car:"xe",u_m:"m",u_core:"sợi",u_set:"bộ",u_kg:"kg",u_kn:"kN",
+ c_park:"Võng sâu nhất (khi gom) = {a} m {op} không gian cho phép {b} m",
+ c_R:"Bán kính uốn đáy vòng khi giãn = {a} mm {op} R_min = {b} mm ({k} × Ø{d})",
+ c_T:"Hệ số chùng thực tế s/a = {a} {op} {b}",c_Tok:"cáp không bị kéo căng",c_Tbad:"CÁP BỊ KÉO CĂNG, tăng số xe cáp",
+ c_W:"Tải mỗi xe cáp = {a} kg {op} {b} kg cho phép",c_Wbad:" — phải tăng số xe hoặc đổi cỡ xe",
+ c_dvB:"Sụt áp vượt {m} %: ",c_dvG:"Sụt áp lớn nhất {a} % ≤ {m} % cho phép",
+ c_sp:"Tiết diện yên xe cần chừa thêm {p} % cho cáp bổ sung",
+ sm:["Số sợi cáp động lực","Số sợi cáp phanh / encoder","Số sợi cáp điều khiển, khác","Tổng số sợi trên festoon","Đường kính lớn nhất","Chiều dài 1 sợi","Tổng chiều dài cáp / 1 cẩu","Khối lượng cáp treo","Tải trung bình mỗi xe cáp","TỔNG CÁP CHO {q} CẨU"],
+ bm:["Ray festoon (C-rail / I-beam)","Xe cáp (cable trolley)","Xe kéo (towing trolley)","Kẹp đầu cố định (end clamp)","Chặn cuối ray (end stop)","Giá đỡ ray @ {b} m","Xích kéo + shackle","Lực kéo ước tính (µ = 0,1)"],
+ st_ext:"giãn hết",st_park:"gom hết",st_run:"chạy {p} %",
+ foot:"Tính theo mô hình catenary giải số. Toàn bộ dữ liệu chỉ nằm trên máy của bạn, không gửi đi đâu. Kết quả là tính toán sơ bộ — phải đối chiếu catalogue nhà sản xuất trước khi phát hành.",
+ basis:`<p><b>Hình học.</b> n xe cáp + 1 kẹp cố định + 1 tay kéo → số vòng cáp = n+1. Chiều dài gom <code>C = (n+2)·b</code>;
+ hành trình <code>S = E − C</code> nên bước vòng khi giãn hết <code>a = S/(n+1)</code>. Chiều dài ray <code>L_ray = S + C + tay kéo/chặn cuối</code>.</p>
+ <p><b>Chiều dài cáp một vòng (s).</b> Quyết định bởi trạng thái <i>gom</i> — lúc đó vòng cáp sâu nhất. Mô hình chữ U đáy bo bán kính R<sub>min</sub>:
+ <code>h_gom = s/2 − 0,571·R_min</code> → <code>s = 2·(h_cho_phép + 0,571·R_min)</code>.</p>
+ <p><b>Khi giãn hết.</b> Cáp tròn treo theo đường dây xích: <code>u = a/2c</code>, <code>s = a·sinh(u)/u</code>, <code>f = a(cosh u − 1)/(2u)</code>,
+ bán kính cong tại đáy <code>R = c = a/(2u)</code>. Cáp dẹt dùng mô hình U: <code>s = 2h + 0,571·a</code>, <code>R = a/2</code>.
+ Ràng buộc chống kéo căng <code>s/a ≥ 1,10</code> → <code>a_max = s/1,10</code> → <code>n = ceil(S/a_max) − 1</code>.</p>
+ <p><b>Dòng động cơ.</b> <code>I = P·1000/(√3·U·η·cosφ)</code>. Qua biến tần thì lấy dòng đầu vào drive theo datasheet.</p>
+ <p><b>Chọn tiết diện.</b> <code>I_yêu_cầu = I × k_chu_kỳ /(k_nhiệt_độ × k_bó_cáp)</code>, tra bảng ampacity theo tiêu chuẩn đã chọn.
+ Bảng AWG lấy cột 90 °C của NEC Table 310.16; bảng mm² lấy giá trị tham khảo cho cáp cao su nhiều lõi đặt trong không khí.
+ NEC 610.14(A) cho phép ampacity cao hơn theo chu kỳ làm việc của cẩu — dùng ô "hệ số chu kỳ làm việc" để phản ánh.</p>
+ <p><b>Sụt áp.</b> <code>ΔU = √3·I·L·ρ/S</code>, ρ = 0,0225 Ω·mm²/m (đồng ở 75 °C), L = chiều dài cáp trên festoon + tuyến ngoài.
+ Bỏ qua cảm kháng — tiết diện trên 95 mm² nên cộng thêm 10–15 %.</p>
+ <p style="color:#697069"><b>Giới hạn.</b> OD và kg/m trong bảng cỡ cáp là giá trị ước tính cho cáp cao su nhiều lõi, dùng để lập phương án sơ bộ.
+ Thay bằng số catalogue thật trước khi phát hành. Số xe cáp cuối cùng còn phụ thuộc tải cho phép mỗi xe và lực kéo cho phép của ray theo catalogue nhà sản xuất.</p>`},
+
+en:{h_in:"Input data",g1:"1 · Project & crane",g2:"2 · Space & cable",g3:"3 · Cable trolleys",g4:"4 · Allowances",g5:"5 · Electrical",
+ i_prj:"Project",i_tag:"Crane tag",i_span:"Span / travel length",i_dead:"Dead zone, both ends",i_qty:"Number of cranes",
+ i_h:"Available loop depth",i_ct:"Cable type",o_rnd:"Round",o_flat:"Flat",i_k:"Bend radius factor k (R = k·d)",i_r:"Slack ratio s/a when extended",
+ i_b:"Trolley width when parked",i_sd:"Cable over saddle",i_ex:"Towing arm + end stop",i_bk:"Rail bracket pitch",i_wc:"Allowable load per trolley",i_nf:"Force trolley count (0 = auto)",
+ i_tf:"Tail at fixed end",i_tm:"Tail at moving end",i_mg:"Waste / allowance",i_sp:"Reserve for future cables",
+ i_std:"Conductor size standard",i_u:"Power voltage",i_kt:"Ambient temperature factor",i_kb:"Bundling factor",i_kd:"Duty cycle factor",i_le:"Cable run outside festoon",i_dv:"Allowable voltage drop",
+ b_save:"Save file",b_open:"Open file",b_reset:"Reset",b_addm:"+ Add motor",b_addc:"+ Add cable",b_copy:"Copy to Excel",b_print:"Print",
+ d_title:"Festoon elevation",d_pos:"Trolley position",
+ h_mot:"Motors fed through the festoon",h_mot2:"— moving-side equipment only",
+ hint_m:"Inv = via drive · Brake = adds brake cable · Enc = adds shielded encoder cable",
+ h_oth:"Other cables on the festoon",h_oth2:"— control, lighting, network, sensors",
+ h_sum:"Cable summary",h_bom:"Festoon bill of material (1 crane)",h_sens:"Sensitivity vs trolley count",h_basis:"Calculation basis",
+ t_dev:"Equipment",t_q:"Qty",t_inv:"Inv",t_brk:"Brake",t_enc:"Enc",t_ir:"Required I",t_sz:"Size",t_cab:"Cable",t_core:"Runs",t_mcr:"m/crane",
+ s_n:"Trolleys n",s_a:"Pitch a (m)",s_fe:"Sag extended (m)",s_fp:"Sag parked (m)",s_s:"Cable/loop (m)",s_l:"Cable/run (m)",s_r:"Bottom R (mm)",s_w:"kg/trolley",
+ k_n:"Cable trolleys",k_a:"Loop pitch a",k_rail:"Festoon rail length",k_s:"Cable per loop",k_lper:"Length per run",k_core:"Total runs",k_tot:"Total cable × {q} cranes",
+ u_car:"pcs",u_m:"m",u_core:"runs",u_set:"set",u_kg:"kg",u_kn:"kN",
+ c_park:"Deepest sag (parked) = {a} m {op} available depth {b} m",
+ c_R:"Bottom bend radius when extended = {a} mm {op} R_min = {b} mm ({k} × Ø{d})",
+ c_T:"Actual slack ratio s/a = {a} {op} {b}",c_Tok:"cable not pulled taut",c_Tbad:"CABLE PULLED TAUT — add trolleys",
+ c_W:"Load per trolley = {a} kg {op} {b} kg allowed",c_Wbad:" — add trolleys or use a larger size",
+ c_dvB:"Voltage drop exceeds {m} %: ",c_dvG:"Max voltage drop {a} % ≤ {m} % allowed",
+ c_sp:"Saddle section to reserve {p} % for future cables",
+ sm:["Power cable runs","Brake / encoder runs","Control and other runs","Total runs on festoon","Largest diameter","Length per run","Total cable per crane","Suspended cable weight","Average load per trolley","TOTAL CABLE FOR {q} CRANES"],
+ bm:["Festoon rail (C-rail / I-beam)","Cable trolley","Towing trolley","End clamp","End stop","Rail bracket @ {b} m","Towing chain + shackle","Estimated towing force (µ = 0.1)"],
+ st_ext:"fully extended",st_park:"fully parked",st_run:"{p} % travel",
+ foot:"Exact numerical catenary model. All data stays on your computer — nothing is uploaded. Results are preliminary; verify against the manufacturer catalogue before issue.",
+ basis:`<p><b>Geometry.</b> n cable trolleys + 1 end clamp + 1 towing trolley → n+1 cable loops. Parked length <code>C = (n+2)·b</code>;
+ travel <code>S = E − C</code>, so loop pitch when fully extended is <code>a = S/(n+1)</code>. Rail length <code>L_rail = S + C + towing/end stop</code>.</p>
+ <p><b>Cable length per loop (s).</b> Governed by the <i>parked</i> condition, where the loop hangs deepest. U-loop with bottom radius R<sub>min</sub>:
+ <code>h_parked = s/2 − 0.571·R_min</code> → <code>s = 2·(available depth + 0.571·R_min)</code>.</p>
+ <p><b>Extended condition.</b> Round cable hangs as a catenary: <code>u = a/2c</code>, <code>s = a·sinh(u)/u</code>, <code>f = a(cosh u − 1)/(2u)</code>,
+ bottom radius <code>R = c = a/(2u)</code>. Flat cable uses the U model: <code>s = 2h + 0.571·a</code>, <code>R = a/2</code>.
+ Anti-taut constraint <code>s/a ≥ 1.10</code> → <code>a_max = s/1.10</code> → <code>n = ceil(S/a_max) − 1</code>.</p>
+ <p><b>Motor current.</b> <code>I = P·1000/(√3·U·η·cosφ)</code>. For drive-fed motors use the drive input current from the datasheet.</p>
+ <p><b>Conductor sizing.</b> <code>I_required = I × k_duty /(k_temp × k_bundle)</code>, then read the ampacity table of the selected standard.
+ The AWG table uses the 90 °C column of NEC Table 310.16; the mm² table gives reference values for multicore rubber cable in free air.
+ NEC 610.14(A) permits higher ampacity based on crane duty cycle — use the duty cycle factor to reflect that.</p>
+ <p><b>Voltage drop.</b> <code>ΔU = √3·I·L·ρ/S</code>, ρ = 0.0225 Ω·mm²/m (copper at 75 °C), L = festoon run + external run.
+ Reactance is neglected; add 10–15 % above 95 mm².</p>
+ <p style="color:#697069"><b>Limits.</b> OD and kg/m in the size table are estimates for multicore rubber cable, intended for preliminary sizing.
+ Replace them with real catalogue figures before issue. Final trolley count also depends on the allowable load per trolley and the allowable
+ towing force of the rail per the manufacturer catalogue.</p>`}
+};
+let LG='vi';
+const T=k=>TXT[LG][k];
+const sub=(s,o)=>{Object.keys(o).forEach(k=>s=s.split('{'+k+'}').join(o[k]));return s;};
+
+/* ============ dữ liệu ============ */
+const AWG=[{n:"14 AWG",mm:2.1,amp:25,od:13,w:.28},{n:"12 AWG",mm:3.3,amp:30,od:15,w:.38},{n:"10 AWG",mm:5.3,amp:40,od:17,w:.55},
+ {n:"8 AWG",mm:8.4,amp:55,od:20,w:.80},{n:"6 AWG",mm:13.3,amp:75,od:24,w:1.20},{n:"4 AWG",mm:21.2,amp:95,od:28,w:1.75},
+ {n:"3 AWG",mm:26.7,amp:115,od:30,w:2.15},{n:"2 AWG",mm:33.6,amp:130,od:33,w:2.60},{n:"1 AWG",mm:42.4,amp:145,od:36,w:3.10},
+ {n:"1/0",mm:53.5,amp:170,od:39,w:3.80},{n:"2/0",mm:67.4,amp:195,od:42,w:4.60},{n:"3/0",mm:85,amp:225,od:46,w:5.60},{n:"4/0",mm:107.2,amp:260,od:50,w:6.80}];
+const MM2=[{n:"1,5 mm²",mm:1.5,amp:23,od:12,w:.25},{n:"2,5 mm²",mm:2.5,amp:31,od:14,w:.35},{n:"4 mm²",mm:4,amp:42,od:16,w:.48},
+ {n:"6 mm²",mm:6,amp:54,od:18,w:.65},{n:"10 mm²",mm:10,amp:75,od:21,w:.95},{n:"16 mm²",mm:16,amp:100,od:25,w:1.40},
+ {n:"25 mm²",mm:25,amp:133,od:29,w:2.00},{n:"35 mm²",mm:35,amp:164,od:33,w:2.60},{n:"50 mm²",mm:50,amp:198,od:38,w:3.50},
+ {n:"70 mm²",mm:70,amp:253,od:43,w:4.70},{n:"95 mm²",mm:95,amp:306,od:49,w:6.20},{n:"120 mm²",mm:120,amp:354,od:54,w:7.60},
+ {n:"150 mm²",mm:150,amp:402,od:59,w:9.20},{n:"185 mm²",mm:185,amp:459,od:65,w:11.2},{n:"240 mm²",mm:240,amp:538,od:73,w:14.3}];
+const BRK={s:"brake",d:11,w:.20},ENC={s:"encoder",d:9,w:.14};
+
+const DEF_M=[{n:"Hoist – main",kw:55,eta:.93,pf:.86,q:1,inv:1,brk:1,enc:1},
+ {n:"Hoist – auxiliary",kw:15,eta:.91,pf:.85,q:1,inv:1,brk:1,enc:1},
+ {n:"Cross travel",kw:5.5,eta:.89,pf:.83,q:2,inv:1,brk:1,enc:1},
+ {n:"Attachment / grab",kw:4,eta:.88,pf:.82,q:1,inv:1,brk:1,enc:0}];
+const DEF_O=[{n:"Control cable",d:18,w:.80,q:2},{n:"Network cable",d:10,w:.20,q:1},
+ {n:"Sensor / limit switch",d:12,w:.35,q:2},{n:"Lighting",d:14,w:.45,q:1}];
+let motors=JSON.parse(JSON.stringify(DEF_M)),others=JSON.parse(JSON.stringify(DEF_O));
+
+const $=id=>document.getElementById(id),F=id=>parseFloat($(id).value)||0;
+const fx=(v,d=2)=>isFinite(v)?v.toFixed(d):"—";
+
+function addMotor(){motors.push({n:"New motor",kw:5.5,eta:.88,pf:.83,q:1,inv:1,brk:1,enc:0});calc();}
+function delMotor(i){motors.splice(i,1);calc();}
+function eM(i,k,v){motors[i][k]=(k==='n')?v:(parseFloat(v)||0);calc();}
+function tM(i,k,v){motors[i][k]=v?1:0;calc();}
+function addOther(){others.push({n:"New cable",d:14,w:.4,q:1});calc();}
+function delOther(i){others.splice(i,1);calc();}
+function eO(i,k,v){others[i][k]=(k==='n')?v:(parseFloat(v)||0);calc();}
+
+/* ============ catenary ============ */
+function uFromRatio(r){if(r<=1.0000001)return 1e-6;let lo=1e-6,hi=350;
+ for(let i=0;i<200;i++){const m=(lo+hi)/2;(Math.sinh(m)/m<r)?lo=m:hi=m;}return(lo+hi)/2;}
+function loopFromLength(a,s,type,Rmin){
+ if(a<=.001)return{f:s/2-.571*Rmin,R:Rmin};
+ if(type==="flat"){const R=Math.max(a/2,.001);return{f:(s-Math.PI*R)/2+R,R:R};}
+ const u=uFromRatio(s/a),c=a/(2*u),f=a*(Math.cosh(u)-1)/(2*u);
+ return c<Rmin?{f:s/2-.571*Rmin,R:Rmin}:{f:f,R:c};
+}
+
+/* ============ main ============ */
+function calc(){
+ const span=F('span'),dead=F('dead'),hmax=F('hmax'),kb=F('kbend'),ratio=Math.max(1.01,F('ratio'));
+ const b=F('bpark'),saddle=F('saddle'),extra=F('extra'),bkt=Math.max(.2,F('bkt')),wcar=Math.max(1,F('wcar'));
+ const tailF=F('tailF'),tailM=F('tailM'),marg=F('marg')/100,spare=F('spare')/100;
+ const qty=Math.max(1,F('qty')),type=$('ctype').value,nforce=Math.round(F('nforce'));
+ const U=Math.max(1,F('volt')),kT=Math.max(.1,F('kT')),kB=Math.max(.1,F('kB')),kD=Math.max(.1,F('kD'));
+ const Lext=F('Lext'),dvmax=F('dvmax');
+ const TB=$('std').value==='awg'?AWG:MM2, pick=I=>TB.find(s=>s.amp>=I)||TB[TB.length-1];
+ const S=Math.max(1,span-dead);
+
+ const list=[],mres=[];
+ motors.forEach(m=>{
+  const I=m.kw*1000/(Math.sqrt(3)*U*Math.max(.5,m.eta)*Math.max(.5,m.pf));
+  const Ir=I*kD/(kT*kB),sz=pick(Ir);
+  mres.push({m,I,Ir,sz});
+  list.push({n:m.n,d:sz.od,w:sz.w,q:m.q,mm:sz.mm,pwr:1});
+  if(m.brk)list.push({n:m.n+" – "+BRK.s,d:BRK.d,w:BRK.w,q:m.q,aux:1});
+  if(m.enc)list.push({n:m.n+" – "+ENC.s,d:ENC.d,w:ENC.w,q:m.q,aux:1});
+ });
+ others.forEach(o=>list.push({n:o.n,d:o.d,w:o.w,q:o.q}));
+
+ const dmax=Math.max(...list.map(c=>c.d),1),Rmin=kb*dmax/1000;
+ const s=2*(hmax+.571*Rmin),aMax=s/ratio;
+ const n=nforce>0?nforce:Math.max(1,Math.ceil(S/aMax)-1),a=S/(n+1);
+ const ext=loopFromLength(a,s,type,Rmin),park=loopFromLength(b,s,type,Rmin);
+ const C=(n+2)*b,Lrail=S+C+extra,nbkt=Math.ceil(Lrail/bkt)+1;
+ const Lper=((n+1)*s+(n+2)*saddle+tailF+tailM)*(1+marg);
+
+ let totLen=0,totW=0,nCore=0;
+ list.forEach(c=>{totLen+=Lper*c.q;totW+=Lper*c.q*c.w;nCore+=c.q;});
+ const wPerCar=totW/Math.max(1,n),Lrun=Lper+Lext;
+ mres.forEach(r=>r.dv=Math.sqrt(3)*r.I*Lrun*.0225/r.sz.mm/U*100);
+
+ /* KPI */
+ $('kpis').innerHTML=[
+  [T('k_n'),n,T('u_car')],[T('k_a'),fx(a),T('u_m')],[T('k_rail'),fx(Lrail),T('u_m')],
+  [T('k_s'),fx(s),T('u_m')],[T('k_lper'),fx(Lper,1),T('u_m')],[T('k_core'),nCore,T('u_core')],
+  [sub(T('k_tot'),{q:qty}),fx(totLen*qty,0),T('u_m')]
+ ].map(k=>`<div class="kpi"><div class="k">${k[0]}</div><div class="v">${k[1]} <small>${k[2]}</small></div></div>`).join('');
+
+ /* checks */
+ const ck=[],okPark=park.f<=hmax+.001,okR=ext.R>=Rmin-1e-6,rr=s/a,okT=rr>=ratio-.001,okW=wPerCar<=wcar;
+ ck.push([okPark,sub(T('c_park'),{a:fx(park.f),op:okPark?'≤':'>',b:fx(hmax)})]);
+ ck.push([okR,sub(T('c_R'),{a:fx(ext.R*1000,0),op:okR?'≥':'<',b:fx(Rmin*1000,0),k:kb,d:fx(dmax,0)})]);
+ ck.push([okT,sub(T('c_T'),{a:fx(rr),op:okT?'≥':'<',b:fx(ratio)})+' — '+(okT?T('c_Tok'):T('c_Tbad'))]);
+ ck.push([okW,sub(T('c_W'),{a:fx(wPerCar,1),op:okW?'≤':'>',b:fx(wcar,0)})+(okW?'':T('c_Wbad'))]);
+ const bad=mres.filter(r=>r.dv>dvmax);
+ ck.push([bad.length===0,bad.length?sub(T('c_dvB'),{m:fx(dvmax,1)})+bad.map(r=>r.m.n+' ('+fx(r.dv)+' %)').join(', ')
+   :sub(T('c_dvG'),{a:fx(Math.max(...mres.map(r=>r.dv||0),0)),m:fx(dvmax,1)})]);
+ ck.push([true,sub(T('c_sp'),{p:fx(spare*100,0)})]);
+ $('checks').innerHTML=ck.map(c=>`<div class="flag ${c[0]?'':'bad'}">${c[0]?'✓':'✕'} ${c[1]}</div>`).join('');
+
+ /* motors */
+ $('mtab').querySelector('tbody').innerHTML=mres.map((r,i)=>{const m=r.m;return `<tr>
+  <td class="l"><input value="${m.n}" onchange="eM(${i},'n',this.value)"></td>
+  <td><input type="number" step="0.5" value="${m.kw}" onchange="eM(${i},'kw',this.value)"></td>
+  <td><input type="number" step="0.01" value="${m.eta}" onchange="eM(${i},'eta',this.value)"></td>
+  <td><input type="number" step="0.01" value="${m.pf}" onchange="eM(${i},'pf',this.value)"></td>
+  <td><input type="number" step="1" value="${m.q}" onchange="eM(${i},'q',this.value)"></td>
+  <td><input type="checkbox" ${m.inv?'checked':''} onchange="tM(${i},'inv',this.checked)"></td>
+  <td><input type="checkbox" ${m.brk?'checked':''} onchange="tM(${i},'brk',this.checked)"></td>
+  <td><input type="checkbox" ${m.enc?'checked':''} onchange="tM(${i},'enc',this.checked)"></td>
+  <td>${fx(r.I,1)}</td><td>${fx(r.Ir,1)}</td><td>${r.sz.n}</td><td>${r.sz.od}</td><td>${fx(r.sz.w,2)}</td>
+  <td class="${r.dv>dvmax?'bad':''}">${fx(r.dv)}</td>
+  <td style="text-align:center"><button class="btn sm" onclick="delMotor(${i})">×</button></td></tr>`;}).join('')
+  +`<tr class="sum"><td class="l">Σ ${motors.length}</td><td>${fx(motors.reduce((x,m)=>x+m.kw*m.q,0),1)}</td>
+    <td colspan="6"></td><td>${fx(mres.reduce((x,r)=>x+r.I*r.m.q,0),1)}</td><td colspan="6"></td></tr>`;
+
+ /* other cables */
+ $('otab').querySelector('tbody').innerHTML=others.map((o,i)=>`<tr>
+  <td class="l"><input value="${o.n}" onchange="eO(${i},'n',this.value)"></td>
+  <td><input type="number" step="1" value="${o.d}" onchange="eO(${i},'d',this.value)"></td>
+  <td><input type="number" step="0.05" value="${o.w}" onchange="eO(${i},'w',this.value)"></td>
+  <td><input type="number" step="1" value="${o.q}" onchange="eO(${i},'q',this.value)"></td>
+  <td>${fx(Lper*o.q,1)}</td>
+  <td style="text-align:center"><button class="btn sm" onclick="delOther(${i})">×</button></td></tr>`).join('');
+
+ /* summary */
+ const SM=TXT[LG].sm,vals=[[SM[0],list.filter(c=>c.pwr).reduce((x,c)=>x+c.q,0),T('u_core')],
+  [SM[1],list.filter(c=>c.aux).reduce((x,c)=>x+c.q,0),T('u_core')],
+  [SM[2],others.reduce((x,o)=>x+o.q,0),T('u_core')],[SM[3],nCore,T('u_core')],
+  [SM[4],fx(dmax,0),'mm'],[SM[5],fx(Lper,1),T('u_m')],[SM[6],fx(totLen,0),T('u_m')],
+  [SM[7],fx(totW,0),T('u_kg')],[SM[8],fx(wPerCar,1),T('u_kg')],[sub(SM[9],{q:qty}),fx(totLen*qty,0),T('u_m')]];
+ $('sumtab').innerHTML='<tbody>'+vals.map((r,i)=>`<tr class="${i===vals.length-1?'hi':''}"><td class="l">${r[0]}</td><td>${r[1]}</td><td style="text-align:center">${r[2]}</td></tr>`).join('')+'</tbody>';
+
+ /* BOM */
+ const BM=TXT[LG].bm;
+ $('bom').innerHTML='<tbody>'+[[BM[0],fx(Lrail,1),T('u_m')],[BM[1],n,T('u_set')],[BM[2],1,T('u_set')],
+  [BM[3],1,T('u_set')],[BM[4],2,T('u_set')],[sub(BM[5],{b:fx(bkt,1)}),nbkt,T('u_set')],
+  [BM[6],fx(S+2,1),T('u_m')],[BM[7],fx(totW*.1*9.81/1000,2),T('u_kn')]]
+  .map(r=>`<tr><td class="l">${r[0]}</td><td>${r[1]}</td><td style="text-align:center">${r[2]}</td></tr>`).join('')+'</tbody>';
+
+ /* sensitivity */
+ let rows='';
+ for(let k=Math.max(1,n-3);k<=n+3;k++){
+  const ak=S/(k+1),e=loopFromLength(ak,s,type,Rmin);
+  const Lk=((k+1)*s+(k+2)*saddle+tailF+tailM)*(1+marg);
+  let wk=0;list.forEach(c=>wk+=Lk*c.q*c.w);
+  rows+=`<tr class="${k===n?'hi':''}"><td>${k}</td><td>${fx(ak)}</td><td>${fx(e.f)}</td><td>${fx(park.f)}</td>
+   <td>${fx(s)}</td><td>${fx(Lk,1)}</td><td>${fx(e.R*1000,0)}</td><td class="${wk/k>wcar?'bad':''}">${fx(wk/k,1)}</td></tr>`;
+ }
+ $('sens').querySelector('tbody').innerHTML=rows;
+
+ drawIt({n,a,s,b,S,Lrail,type,Rmin,mres});
+ window._e={n,a,s,S,Lrail,Lper,totLen,totW,qty,park,ext,Rmin,C,nbkt,nCore,dmax,list,mres,wPerCar};
+}
+
+/* ============ drawing ============ */
+function drawIt(o){
+ const p=parseFloat($('pos').value)/100;
+ $('posv').textContent=Math.round(p*100)+' %';
+ $('dtag').textContent=$('tag').value||'—';
+ $('dstate').textContent=p>.99?T('st_ext'):(p<.01?T('st_park'):sub(T('st_run'),{p:Math.round(p*100)}));
+ const W=1000,H=400,mx=62,yT=92,MONO='"IBM Plex Mono",Consolas,monospace';
+ const gap=o.a*p,lp=loopFromLength(gap,o.s,o.type,o.Rmin),sc=(W-2*mx)/o.Lrail,sag=lp.f*sc;
+ let g=`<rect x="${mx}" y="${yT-26}" width="${W-2*mx}" height="12" fill="#2A2F32"/>
+  <rect x="${mx}" y="${yT-14}" width="${W-2*mx}" height="8" fill="#F5C518"/>`;
+ for(let x=mx;x<W-mx;x+=22)g+=`<rect x="${x}" y="${yT-14}" width="11" height="8" fill="#171A1C" opacity=".85"/>`;
+ g+=`<line x1="${mx}" y1="${yT-6}" x2="${W-mx}" y2="${yT-6}" stroke="#4A5155" stroke-width="1.5"/>`;
+ const xs=[];for(let i=0;i<o.n+2;i++)xs.push(mx+(i*(gap+o.b)+o.b/2)*sc);
+ for(let i=0;i<xs.length-1;i++){
+  const x1=xs[i],x2=xs[i+1],dx=x2-x1;let d;
+  if(dx<3)d=`M${x1},${yT} L${x1-2},${yT+sag-6} Q${x1},${yT+sag} ${x1+2},${yT+sag-6} L${x2},${yT}`;
+  else{const u=uFromRatio(o.s/Math.max(gap,.001)),c=dx/(2*u),pts=[];
+   for(let t=0;t<=24;t++){const xx=-dx/2+dx*t/24,yy=c*(Math.cosh(xx/c)-Math.cosh(dx/2/c));
+    pts.push(`${(x1+dx/2+xx).toFixed(1)},${(yT-yy).toFixed(1)}`);}
+   d='M'+pts.join(' L');}
+  g+=`<path d="${d}" fill="none" stroke="#3FBFB4" stroke-width="2.4" stroke-linecap="round"/>`;
+ }
+ xs.forEach((x,i)=>{const last=i===xs.length-1;
+  g+=`<rect x="${x-7}" y="${yT-12}" width="14" height="18" rx="1" fill="${last?'#F5C518':(i===0?'#C9CFCB':'#8C948F')}"/>
+   <circle cx="${x-4}" cy="${yT-14}" r="2.6" fill="#EDEFEA"/><circle cx="${x+4}" cy="${yT-14}" r="2.6" fill="#EDEFEA"/>`;});
+ if(xs.length>2&&gap>.2){const y=yT+sag+34,x1=xs[0],x2=xs[1];
+  g+=`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#8C948F"/>
+   <line x1="${x1}" y1="${y-5}" x2="${x1}" y2="${y+5}" stroke="#8C948F"/>
+   <line x1="${x2}" y1="${y-5}" x2="${x2}" y2="${y+5}" stroke="#8C948F"/>
+   <text x="${(x1+x2)/2}" y="${y-7}" fill="#C9CFCB" font-family='${MONO}' font-size="11" text-anchor="middle">a = ${gap.toFixed(2)} m</text>`;}
+ const xv=mx-18;
+ g+=`<line x1="${xv}" y1="${yT}" x2="${xv}" y2="${yT+sag}" stroke="#8C948F"/>
+  <line x1="${xv-5}" y1="${yT}" x2="${xv+5}" y2="${yT}" stroke="#8C948F"/>
+  <line x1="${xv-5}" y1="${yT+sag}" x2="${xv+5}" y2="${yT+sag}" stroke="#8C948F"/>
+  <text x="${xv-8}" y="${yT+sag/2}" fill="#C9CFCB" font-family='${MONO}' font-size="11" text-anchor="middle" transform="rotate(-90 ${xv-8} ${yT+sag/2})">h = ${lp.f.toFixed(2)} m</text>`;
+ const sagMax=Math.max(sag,loopFromLength(0,o.s,o.type,o.Rmin).f*sc);
+ const yr=Math.round(yT+sagMax+78);
+ g+=`<line x1="${mx}" y1="${yr}" x2="${W-mx}" y2="${yr}" stroke="#8C948F"/>
+  <line x1="${mx}" y1="${yr-6}" x2="${mx}" y2="${yr+6}" stroke="#8C948F"/>
+  <line x1="${W-mx}" y1="${yr-6}" x2="${W-mx}" y2="${yr+6}" stroke="#8C948F"/>
+  <text x="${W/2}" y="${yr-9}" fill="#C9CFCB" font-family='${MONO}' font-size="11" text-anchor="middle">L = ${o.Lrail.toFixed(2)} m / ${o.n} + 2</text>`;
+ const PL=planSVG({mres:o.mres,mx,W,xs,yTop:yr+46,MONO});
+ g+=PL.g;
+ $('svg').setAttribute('viewBox','0 0 1000 '+Math.round(PL.H));
+ $('svg').innerHTML=g;
+}
+
+/* ============ hồ sơ ============ */
+const IDS=['prj','tag','span','dead','qty','hmax','ctype','kbend','ratio','bpark','saddle','extra','bkt','wcar','nforce',
+ 'tailF','tailM','marg','spare','std','volt','kT','kB','kD','Lext','dvmax'];
+function saveJSON(){
+ const d={v:2,lang:LG,mode:MODE||1,f:{},motors,others,s1,s2,s3};
+ IDS.forEach(i=>d.f[i]=$(i).value);IDS2.concat(IDS3).forEach(i=>d.f[i]=$(i).value);
+ d.f.cum=$('cum').checked?1:0;
+ const nm=$('prj').value||'cranecable', tg=$('tag').value||'';
+ const name=(nm+'_'+tg).replace(/[^\w\-]+/g,'_').replace(/_+$/,'');
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,1)],{type:'application/json'}));
+ a.download=name+'.json';a.click();URL.revokeObjectURL(a.href);
+}
+function loadJSON(el){
+ const f=el.files[0];if(!f)return;const r=new FileReader();
+ r.onload=()=>{try{const d=JSON.parse(r.result);
+  IDS.concat(IDS2).concat(IDS3).forEach(i=>{if(d.f&&d.f[i]!==undefined)$(i).value=d.f[i];});
+  if(d.f&&d.f.cum!==undefined)$('cum').checked=!!+d.f.cum;
+  if(d.motors)motors=d.motors;if(d.others)others=d.others;
+  if(d.s1)s1=d.s1;if(d.s2)s2=d.s2;if(d.s3)s3=d.s3;
+  if(d.lang){LG=d.lang;$('lang').value=LG;}
+  applyLang();calc();calc2();calc3();if(d.mode)setMode(d.mode);}catch(e){alert('File error');}};
+ r.readAsText(f);el.value='';
+}
+function resetAll(){
+ motors=JSON.parse(JSON.stringify(DEF_M));others=JSON.parse(JSON.stringify(DEF_O));
+ const D={prj:'',tag:'',span:25,dead:2,qty:1,hmax:1.2,ctype:'round',kbend:8,ratio:1.1,bpark:.15,saddle:.12,extra:.6,
+  bkt:1,wcar:25,nforce:0,tailF:3,tailM:3,marg:5,spare:20,std:'awg',volt:400,kT:.91,kB:.7,kD:1,Lext:20,dvmax:3};
+ IDS.forEach(i=>$(i).value=D[i]);$('pos').value=100;calc();
+}
+function copyAll(){
+ const e=window._e;if(!e)return;
+ const L=[['Project',$('prj').value],['Crane',$('tag').value],['Span (m)',$('span').value],['Travel S (m)',fx(e.S)],
+  ['Cable trolleys',e.n],['Loops',e.n+1],['Loop pitch a (m)',fx(e.a)],['Cable per loop s (m)',fx(e.s)],
+  ['Sag extended (m)',fx(e.ext.f)],['Sag parked (m)',fx(e.park.f)],['Rail length (m)',fx(e.Lrail)],
+  ['Parked length C (m)',fx(e.C)],['Rail brackets',e.nbkt],['Length per run (m)',fx(e.Lper,1)],
+  ['Total runs',e.nCore],['Max OD (mm)',fx(e.dmax,0)],['Total cable / crane (m)',fx(e.totLen,0)],
+  ['Cable weight (kg)',fx(e.totW,0)],['Load per trolley (kg)',fx(e.wPerCar,1)],['Cranes',e.qty],
+  ['TOTAL CABLE (m)',fx(e.totLen*e.qty,0)],['',''],['MOTOR','I(A)\tI req\tSize\tOD\tdU%']];
+ e.mres.forEach(r=>L.push([r.m.n+' x'+r.m.q,fx(r.I,1)+'\t'+fx(r.Ir,1)+'\t'+r.sz.n+'\t'+r.sz.od+'\t'+fx(r.dv)]));
+ L.push(['','']);L.push(['CABLE','m/crane']);
+ e.list.forEach(c=>L.push([c.n+' ('+c.q+' x OD'+c.d+')',fx(e.Lper*c.q,1)]));
+ const txt=L.map(r=>r.join('\t')).join('\n');
+ navigator.clipboard.writeText(txt).then(()=>alert('Copied '+L.length+' rows.'),()=>{
+  const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();
+  document.execCommand('copy');t.remove();alert('Copied.');});
+}
+
+
+/* ================= CHẾ ĐỘ 2 — cáp trên xe lớn ================= */
+const TXT2={
+vi:{
+ p_intro:"Chọn bài toán cần tính. Thông số của các chế độ được lưu chung trong một file hồ sơ.",
+ p1_h:"Cáp trên festoon",p1_p:"Hình học hệ festoon: số xe cáp, bước vòng, độ võng, chiều dài ray, chiều dài cáp treo và chọn tiết diện cho phần cáp di động.",
+ p1_a:"Catenary — võng khi giãn / khi gom",p1_b:"Số xe cáp, chiều dài ray, tải mỗi xe",p1_c:"Tiết diện + sụt áp cáp động lực trên festoon",p1_d:"Hình chiếu bằng xe con & động cơ",
+ p2_h:"Cáp trên xe lớn",p2_p:"Tủ điện chính đặt giữa xe lớn, từ đó chạy ra hệ festoon và các động cơ xe lớn.",
+ p2_a:"① Tủ điện chính → hệ festoon",p2_b:"② Tủ điện chính → động cơ xe lớn",p2_c:"③ Cáp instrument / tín hiệu / mạng",p2_d:"Sụt áp cộng dồn tới động cơ xe con",
+ b_back:"← Đổi chế độ",m1_name:"MODE 01 · CÁP TRÊN FESTOON",m2_name:"MODE 02 · CÁP TRÊN XE LỚN",
+ m2_hin:"Thông số chung",m2_inh:"Điện áp động lực, tiêu chuẩn cỡ cáp và số cẩu lấy theo mode 1.",
+ m2_g1:"1 · Kích thước",m2_g2:"2 · Điện",m2_g3:"3 · Sụt áp",m2_g4:"4 · Chiều dài & dự phòng",
+ m2_span:"Khẩu độ cầu",m2_pp:"Vị trí tủ tính từ đầu dầm trái",m2_bapp:"Lấy khẩu độ từ mode 1 & điền chiều dài tuyến",
+ m2_ui:"Điện áp mạch tín hiệu",m2_kcor:"Hệ số hiệu chỉnh dòng",m2_kc:"Hệ số dòng liên tục",
+ m2_dvl:"Giới hạn từng đoạn",m2_dvt:"Σ tới động cơ xe con",m2_cum:"Cộng dồn đoạn festoon (mode 1)",
+ m2_sl:"Chừa đấu nối mỗi đầu",m2_al:"Hao hụt / đi vòng",m2_df:"Hệ số đồng thời tính feeder",
+ m2_dt:"Sơ đồ cấp điện trên xe lớn",
+ m2_h1:"① Tủ điện chính → hệ festoon",m2_h1n:"— chạy dọc dầm từ tủ giữa cầu ra điểm cấp festoon",
+ m2_h2:"② Tủ điện chính → động cơ xe lớn",m2_h2n:"— tuyến chạy về hai đầu dầm, kể cả phanh và encoder",
+ m2_h3:"③ Cáp instrument / tín hiệu",m2_h3n:"— cảm biến, encoder, chống va, mạng, camera",
+ m2_c_tag:"Tuyến",m2_c_from:"Từ",m2_c_to:"Đến",m2_c_amp:"I nhập (A)",m2_c_ph:"Pha",m2_c_L:"L tuyến (m)",m2_c_par:"Song song",
+ m2_c_len:"Σ m",m2_c_tagi:"Thiết bị / tín hiệu",m2_c_route:"Tuyến",m2_c_I:"I tải (A)",
+ m2_b1:"+ Thêm tuyến",m2_b1b:"Lấy tổng tải xe con từ mode 1",m2_b2:"+ Thêm thiết bị",m2_b3:"+ Thêm cáp",
+ m2_hint1:'I nhập > 0 sẽ được dùng thay cho kW · tiết diện "auto" chọn theo cả ampacity lẫn sụt áp',
+ m2_hint2:"Chiều dài mặc định = khoảng cách từ tủ tới đầu dầm gần / xa + 6 m đi xuống động cơ",
+ m2_hsum:"Tổng hợp theo đoạn tuyến",m2_hbom:"Vật tư phụ trợ (1 cẩu)",
+ m2_k1:"Cáp ① tới festoon",m2_k2:"Cáp ② động cơ xe lớn",m2_k3:"Cáp ③ instrument",m2_ktot:"Tổng cáp trên xe lớn / 1 cẩu",
+ m2_kall:"Tổng cho {q} cẩu",m2_krun:"Tổng số sợi",m2_kdv:"ΔU Σ tới xe con",
+ m2_s:["① Tủ chính → hệ festoon","② Tủ chính → động cơ xe lớn (kể cả phanh, encoder)","③ Instrument / tín hiệu","Tổng chiều dài / 1 cẩu","Tổng khối lượng cáp","Tổng số sợi","Đường kính lớn nhất","TỔNG CHO {q} CẨU"],
+ m2_b:["Máng cáp dọc dầm","Ống luồn mềm nhánh ②","Cable gland (2 đầu mỗi sợi)","Hộp nối trên dầm","Đầu cosse động lực","Kẹp / đỡ cáp @ 0,6 m","Khối lượng cáp ước tính"],
+ m2_ck1:"Sụt áp tuyến ① lớn nhất {a} % {op} {b} % cho phép",
+ m2_ck2:"Sụt áp nhánh động cơ xe lớn ② lớn nhất {a} % {op} {b} % cho phép",
+ m2_ck3:"Sụt áp cộng dồn tới động cơ xe con (① + festoon) {a} % {op} {b} % cho phép",
+ m2_ck4:"Sụt áp mạch tín hiệu ③ lớn nhất {a} % {op} {b} % cho phép",
+ m2_ck5:"Tiết diện chọn tay không đủ ampacity: ",m2_ck5g:"Mọi tiết diện đều đạt ampacity sau khi hiệu chỉnh hệ số",
+ m2_ck6:"Chưa chạy mode 1 — phần sụt áp trên festoon đang tính bằng 0",
+ m2_d_pn:"TỦ ĐIỆN CHÍNH",m2_d_fp:"ĐIỂM CẤP FESTOON",m2_d_cr:"XE CON",m2_d_lt:"ĐỘNG CƠ CHẠY DỌC",m2_d_run:"sợi",
+ m2_d_g1:"Dầm đặt hệ festoon",m2_d_g2:"Dầm còn lại",m2_d_sp:"Khẩu độ",
+ m2_state:"{a} sợi · {b} m / cẩu",
+ basis2:`<p><b>Sơ đồ cấp điện.</b> Nguồn từ thanh dẫn điện qua bộ lấy điện vào <b>tủ điện chính đặt giữa xe lớn</b>.
+ Từ tủ này rẽ ra ba hướng: ① chạy dọc dầm ra điểm cấp của hệ festoon để nuôi xe con, ② chạy về hai đầu dầm nuôi
+ động cơ chạy dọc, ③ cáp instrument và tín hiệu. Đoạn cáp di động trên festoon do mode 1 đảm nhiệm.</p>
+ <p><b>Chiều dài.</b> <code>L_sợi = (L_tuyến + 2 × chừa_đấu_nối) × (1 + hao_hụt)</code>. Nút "Lấy khẩu độ từ mode 1" điền
+ <code>L① = khẩu_độ × (1 − vị_trí_tủ)</code> — từ tủ chạy dọc dầm ra điểm cấp festoon ở đầu dầm bên phải — và
+ <code>L② = khoảng_cách_từ_tủ_tới_đầu_dầm + 6 m</code> tính riêng cho động cơ đầu gần và đầu xa.</p>
+ <p><b>Đọc cột Σ m.</b> Cột này là <i>tổng chiều dài cáp phải mua</i>, không phải chiều dài một tuyến:
+ <code>Σ m = chiều_dài_một_sợi × số_sợi</code>. Mỗi động cơ có bật phanh và encoder sẽ thành ba sợi chứ không phải một,
+ nên số mét tổng lớn hơn chiều dài tuyến nhiều lần.</p>
+ <p><b>Dòng điện.</b> 3 pha <code>I = P·1000/(√3·U·η·cosφ)</code>; 1 pha <code>I = P·1000/(U·η·cosφ)</code>.
+ Nhập trực tiếp cột "I nhập (A)" thì giá trị đó được ưu tiên — dùng cho dòng vào biến tần theo datasheet.
+ Nhiều sợi song song thì dòng mỗi sợi là <code>I/n_song_song</code>.</p>
+ <p><b>Chọn tiết diện.</b> <code>I_yêu_cầu = I_mỗi_sợi × k_liên_tục / k_hiệu_chỉnh</code>, trong đó k_hiệu_chỉnh gộp cả
+ nhiệt độ môi trường, nhóm cáp trên máng và chu kỳ làm việc (mặc định 0,73 ≈ 0,91 × 0,80). Hệ số 1,25 theo NEC 430.22.
+ Chương trình lấy tiết diện nhỏ nhất thoả <i>cả hai</i>: đạt ampacity sau hiệu chỉnh <i>và</i>
+ <code>S ≥ k·I·L·ρ/(ΔU_cho_phép·U)</code>. Ruột dẫn đồng, ρ = 0,0225 Ω·mm²/m ở 75 °C.</p>
+ <p><b>Sụt áp.</b> 3 pha <code>ΔU = √3·I·L·ρ/S</code>; 1 pha và DC <code>ΔU = 2·I·L·ρ/S</code>. Bỏ qua cảm kháng — trên 95 mm² nên cộng thêm 10–15 %.
+ Sụt áp tới động cơ xe con là <code>ΔU① + ΔU_festoon</code> lấy từ mode 1, so với giới hạn Σ (mặc định 5 %).
+ Động cơ xe lớn chỉ qua một chặng nên chỉ so với giới hạn từng đoạn.</p>
+ <p style="color:#697069"><b>Giới hạn.</b> OD và kg/m là giá trị ước tính cho cáp nhiều lõi cách điện cao su / XLPE.
+ Phải thay bằng số catalogue thật và kiểm tra lại phương pháp lắp đặt trước khi phát hành.</p>`},
+en:{
+ p_intro:"Pick the calculation you need. All modes are stored in one project file.",
+ p1_h:"Cables on the festoon",p1_p:"Festoon geometry: trolley count, loop pitch, sag, rail length, suspended cable length and conductor sizing for the moving section.",
+ p1_a:"Catenary — sag extended / parked",p1_b:"Trolley count, rail length, load per trolley",p1_c:"Size + voltage drop of festoon power cables",p1_d:"Plan view of the crab and its motors",
+ p2_h:"Cables on the bridge",p2_p:"The main panel sits at the centre of the bridge and feeds the festoon system and the bridge travel motors.",
+ p2_a:"① Main panel → festoon system",p2_b:"② Main panel → bridge travel motors",p2_c:"③ Instrument / signal / network cables",p2_d:"Cumulative voltage drop down to the crab motors",
+ b_back:"← Change mode",m1_name:"MODE 01 · FESTOON CABLES",m2_name:"MODE 02 · BRIDGE CABLES",
+ m2_hin:"Common data",m2_inh:"Power voltage, conductor size standard and crane count are taken from mode 1.",
+ m2_g1:"1 · Dimensions",m2_g2:"2 · Electrical",m2_g3:"3 · Voltage drop",m2_g4:"4 · Lengths & allowances",
+ m2_span:"Bridge span",m2_pp:"Panel position from the left girder end",m2_bapp:"Take span from mode 1 & fill route lengths",
+ m2_ui:"Signal circuit voltage",m2_kcor:"Combined derating factor",m2_kc:"Continuous load factor",
+ m2_dvl:"Limit per section",m2_dvt:"Σ down to the crab motors",m2_cum:"Include festoon section (mode 1)",
+ m2_sl:"Termination slack per end",m2_al:"Waste / routing allowance",m2_df:"Diversity factor for the feeder",
+ m2_dt:"Power distribution on the bridge",
+ m2_h1:"① Main panel → festoon system",m2_h1n:"— along the girder from the centre panel to the festoon feed point",
+ m2_h2:"② Main panel → bridge travel motors",m2_h2n:"— runs out to both ends of the girder, brake and encoder included",
+ m2_h3:"③ Instrument / signal cables",m2_h3n:"— sensors, encoders, anti-collision, network, cameras",
+ m2_c_tag:"Route",m2_c_from:"From",m2_c_to:"To",m2_c_amp:"I entered (A)",m2_c_ph:"Ph",m2_c_L:"Route L (m)",m2_c_par:"Parallel",
+ m2_c_len:"Σ m",m2_c_tagi:"Device / signal",m2_c_route:"Route",m2_c_I:"Load I (A)",
+ m2_b1:"+ Add route",m2_b1b:"Take crab total load from mode 1",m2_b2:"+ Add device",m2_b3:"+ Add cable",
+ m2_hint1:'I entered > 0 overrides kW · size "auto" is picked on both ampacity and voltage drop',
+ m2_hint2:"Default length = panel to the near / far girder end + 6 m down to the motor",
+ m2_hsum:"Summary by section",m2_hbom:"Ancillary material (1 crane)",
+ m2_k1:"① Cable to festoon",m2_k2:"② Bridge motor cable",m2_k3:"③ Instrument cable",m2_ktot:"Total on the bridge / crane",
+ m2_kall:"Total for {q} cranes",m2_krun:"Total runs",m2_kdv:"ΔU Σ to the crab",
+ m2_s:["① Panel → festoon system","② Panel → bridge travel motors (incl. brake, encoder)","③ Instrument / signal","Total length per crane","Total cable weight","Total runs","Largest diameter","TOTAL FOR {q} CRANES"],
+ m2_b:["Cable tray along the girder","Flexible conduit, branch ②","Cable glands (2 per run)","Junction box on the girder","Power cable lugs","Cable cleats @ 0.6 m","Estimated cable weight"],
+ m2_ck1:"Max voltage drop on route ① {a} % {op} {b} % allowed",
+ m2_ck2:"Max voltage drop on bridge motor branch ② {a} % {op} {b} % allowed",
+ m2_ck3:"Cumulative drop to the crab motors (① + festoon) {a} % {op} {b} % allowed",
+ m2_ck4:"Max signal circuit drop ③ {a} % {op} {b} % allowed",
+ m2_ck5:"Manually selected size below required ampacity: ",m2_ck5g:"All selected sizes meet the derated ampacity",
+ m2_ck6:"Mode 1 not run yet — the festoon voltage drop is counted as zero",
+ m2_d_pn:"MAIN PANEL",m2_d_fp:"FESTOON FEED",m2_d_cr:"CRAB",m2_d_lt:"TRAVEL MOTORS",m2_d_run:"runs",
+ m2_d_g1:"Girder carrying the festoon",m2_d_g2:"Other girder",m2_d_sp:"Span",
+ m2_state:"{a} runs · {b} m / crane",
+ basis2:`<p><b>Distribution scheme.</b> Power arrives from the conductor bar through the collectors into the
+ <b>main panel at the centre of the bridge</b>. From there it splits three ways: ① along the girder to the festoon feed point
+ serving the crab, ② out to both girder ends for the long travel motors, ③ instrument and signal cables.
+ The moving cable on the festoon itself is handled by mode 1.</p>
+ <p><b>Length.</b> <code>L_run = (L_route + 2 × slack) × (1 + allowance)</code>. "Take span from mode 1" fills
+ <code>L① = span × (1 − panel_position)</code> — from the panel along the girder to the festoon feed point at the right end — and
+ <code>L② = distance from the panel to that girder end + 6 m</code>, computed separately for the near and far motors.</p>
+ <p><b>Reading the Σ m column.</b> It is the <i>total cable length to buy</i>, not the route length:
+ <code>Σ m = length of one run × number of runs</code>. A motor with brake and encoder ticked becomes three runs, not one,
+ so the total is several times the route length.</p>
+ <p><b>Current.</b> Three phase <code>I = P·1000/(√3·U·η·cosφ)</code>; single phase <code>I = P·1000/(U·η·cosφ)</code>.
+ An entry in "I entered (A)" overrides the calculation — use it for drive input current from the datasheet.
+ With parallel runs the current per run is <code>I/n_parallel</code>.</p>
+ <p><b>Conductor sizing.</b> <code>I_required = I_per_run × k_continuous / k_derating</code>, where the derating factor combines
+ ambient temperature, grouping on the tray and duty cycle (default 0.73 ≈ 0.91 × 0.80). The 1.25 factor follows NEC 430.22.
+ The program takes the smallest size meeting <i>both</i> the derated ampacity <i>and</i>
+ <code>S ≥ k·I·L·ρ/(ΔU_allowed·U)</code>. Copper conductor, ρ = 0.0225 Ω·mm²/m at 75 °C.</p>
+ <p><b>Voltage drop.</b> Three phase <code>ΔU = √3·I·L·ρ/S</code>; single phase and DC <code>ΔU = 2·I·L·ρ/S</code>. Reactance is neglected; add 10–15 % above 95 mm².
+ The drop to the crab motors is <code>ΔU① + ΔU_festoon</code> taken from mode 1, checked against the Σ limit (5 % by default).
+ The bridge travel motors sit one hop from the panel, so only the per-section limit applies.</p>
+ <p style="color:#697069"><b>Limits.</b> OD and kg/m are estimates for multicore rubber / XLPE cable.
+ Replace them with real catalogue figures and re-check the installation method before issue.</p>`}
+};
+Object.assign(TXT.vi,TXT2.vi);Object.assign(TXT.en,TXT2.en);
+
+const INS=[{n:"2 x 1,5 mm² shielded",od:9,w:.13,mm:1.5},{n:"4 x 1,5 mm² shielded",od:11,w:.19,mm:1.5},
+ {n:"7 x 1,5 mm² shielded",od:13,w:.27,mm:1.5},{n:"12 x 1,5 mm² shielded",od:16,w:.42,mm:1.5},
+ {n:"2 x 2,5 mm² (24 V power)",od:10,w:.17,mm:2.5},{n:"Profibus 2 x 0,64 mm²",od:8,w:.10,mm:.32},
+ {n:"Cat6 S/FTP",od:7.5,w:.06,mm:0},{n:"Encoder 4 x 2 x 0,34 mm²",od:9.5,w:.14,mm:.34},
+ {n:"Fiber optic 4 core armoured",od:9,w:.09,mm:0},{n:"Coax RG59 / camera",od:7,w:.06,mm:0}];
+const BRK2={mm:1.5,od:11,w:.19},ENC2={mm:.34,od:9.5,w:.14};
+const RHO2=.0225;
+
+const DEF_S1=[{n:"Cấp nguồn hệ festoon",fr:"Tủ điện chính",to:"Điểm cấp festoon",kw:0,amp:170,eta:.93,pf:.86,ph:3,L:12.5,par:1,q:1,sz:"auto"},
+ {n:"Chiếu sáng & ổ cắm",fr:"Tủ điện chính",to:"Hộp phân phối dầm",kw:6,amp:0,eta:.90,pf:.85,ph:1,L:12.5,par:1,q:2,sz:"auto"}];
+const DEF_S2=[{n:"Động cơ chạy dọc — đầu gần",end:"near",kw:7.5,amp:0,eta:.90,pf:.84,ph:3,L:14.8,q:1,brk:1,enc:1,sz:"auto"},
+ {n:"Động cơ chạy dọc — đầu xa",end:"far",kw:7.5,amp:0,eta:.90,pf:.84,ph:3,L:22.3,q:1,brk:1,enc:1,sz:"auto"},
+ {n:"Thiết bị phụ trên dầm",end:"far",kw:2,amp:0,eta:.85,pf:.80,ph:3,L:22.3,q:2,brk:0,enc:0,sz:"auto"}];
+const DEF_S3=[{n:"Limit switch chạy dọc",rt:"Tủ chính → limit",c:"2 x 1,5 mm² shielded",L:20,q:2,amp:.05},
+ {n:"Encoder chạy dọc",rt:"Tủ chính → encoder",c:"Encoder 4 x 2 x 0,34 mm²",L:20,q:2,amp:.10},
+ {n:"Chống va (laser)",rt:"Tủ chính → sensor",c:"4 x 1,5 mm² shielded",L:22,q:2,amp:.15},
+ {n:"Load cell / chỉ báo tải",rt:"Tủ chính → load cell",c:"4 x 1,5 mm² shielded",L:25,q:1,amp:.05},
+ {n:"Remote I/O trunk",rt:"PLC → remote I/O",c:"Cat6 S/FTP",L:30,q:1,amp:0},
+ {n:"Camera / cabin",rt:"Tủ chính → camera",c:"Coax RG59 / camera",L:26,q:1,amp:.20}];
+let s1=JSON.parse(JSON.stringify(DEF_S1)),s2=JSON.parse(JSON.stringify(DEF_S2)),s3=JSON.parse(JSON.stringify(DEF_S3));
+
+function addS1(){s1.push({n:"Tuyến mới",fr:"Tủ điện chính",to:"",kw:5,amp:0,eta:.9,pf:.85,ph:3,L:F('Lspan')/2,par:1,q:1,sz:"auto"});calc2();}
+function addS2(){s2.push({n:"Thiết bị mới",end:"far",kw:5.5,amp:0,eta:.88,pf:.83,ph:3,L:F('Lspan')/2+6,q:1,brk:0,enc:0,sz:"auto"});calc2();}
+function addS3(){s3.push({n:"Tín hiệu mới",rt:"",c:INS[0].n,L:20,q:1,amp:.05});calc2();}
+function dS(a,i){({1:s1,2:s2,3:s3})[a].splice(i,1);calc2();}
+function eS(a,i,k,v){const r=({1:s1,2:s2,3:s3})[a][i];
+ r[k]=(k==='n'||k==='fr'||k==='to'||k==='rt'||k==='c'||k==='sz')?v:(parseFloat(v)||0);calc2();}
+function tS(a,i,k,v){({1:s1,2:s2,3:s3})[a][i][k]=v?1:0;calc2();}
+
+const TB2=()=>$('std').value==='awg'?AWG:MM2;
+function pickSz(row,Ir,Smin){const TB=TB2();
+ if(row.sz&&row.sz!=='auto'){const f=TB.find(s=>s.n===row.sz);if(f)return f;}
+ return TB.find(s=>s.amp>=Ir&&s.mm>=(Smin>0?Smin:0))||TB[TB.length-1];}
+function szSel(a,i,cur){return '<select onchange="eS('+a+','+i+',\'sz\',this.value)"><option value="auto"'+(cur==='auto'?' selected':'')+'>auto</option>'+
+ TB2().map(s=>'<option'+(cur===s.n?' selected':'')+'>'+s.n+'</option>').join('')+'</select>';}
+function insSel(i,cur){return '<select onchange="eS(3,'+i+',\'c\',this.value)">'+
+ INS.map(s=>'<option'+(cur===s.n?' selected':'')+'>'+s.n+'</option>').join('')+'</select>';}
+function phSel(a,i,cur){return '<select onchange="eS('+a+','+i+',\'ph\',this.value)">'+
+ [3,1].map(p=>'<option value="'+p+'"'+(+cur===p?' selected':'')+'>'+p+'</option>').join('')+'</select>';}
+
+function panelPos(){return Math.min(.95,Math.max(.05,F('ppos')/100));}
+function applySpan(){
+ const sp=F('span')>0?F('span'):F('Lspan'),p=panelPos();
+ $('Lspan').value=sp;
+ const Lf=Math.round(sp*(1-p)*10)/10;
+ const Ln=Math.round((sp*Math.min(p,1-p)+6)*10)/10,Lx=Math.round((sp*Math.max(p,1-p)+6)*10)/10;
+ s1.forEach(r=>r.L=Lf);
+ s2.forEach(r=>r.L=(r.end==='near'?Ln:Lx));
+ calc2();}
+function loadTotal(){
+ if(!motors.length)return;
+ const U=Math.max(1,F('volt')),df=Math.max(.1,F('divf'));
+ let I=0,Imax=0;
+ motors.forEach(m=>{const i=m.kw*1000/(Math.sqrt(3)*U*Math.max(.5,m.eta)*Math.max(.5,m.pf));
+  I+=i*m.q;Imax=Math.max(Imax,i);});
+ if(!s1.length)s1.push(JSON.parse(JSON.stringify(DEF_S1[0])));
+ s1[0].kw=0;s1[0].amp=+(((I-Imax)*df+Imax*1.25).toFixed(1));calc2();}
+function reset2(){
+ s1=JSON.parse(JSON.stringify(DEF_S1));s2=JSON.parse(JSON.stringify(DEF_S2));s3=JSON.parse(JSON.stringify(DEF_S3));
+ const D={Lspan:25,ppos:65,volti:24,kcor:.73,kcont:1.25,dvlim:3,dvtot:5,slack:1.5,allow:8,divf:.8};
+ IDS2.forEach(i=>{if(D[i]!==undefined)$(i).value=D[i];});$('cum').checked=true;calc2();}
+
+/* ---------- tính toán ---------- */
+function calc2(){
+ if(!$('t1'))return;
+ const U=Math.max(1,F('volt')),Ui=Math.max(1,F('volti'));
+ const kcor=Math.max(.2,F('kcor')),kc=Math.max(1,F('kcont'));
+ const sl=F('slack'),al=F('allow')/100,qty=Math.max(1,F('qty'));
+ const dvl=Math.max(.2,F('dvlim')),dvt=F('dvtot'),cum=$('cum').checked;
+ const Lof=L=>(L+2*sl)*(1+al);
+ const R1=[],R2=[],R3=[];let bad=[];
+
+ s1.forEach((r,i)=>{
+  const ph=+r.ph===1?1:3,par=Math.max(1,Math.round(r.par)),k=ph===3?Math.sqrt(3):2;
+  const I=r.amp>0?r.amp:(r.kw*1000/((ph===3?Math.sqrt(3):1)*U*Math.max(.5,r.eta)*Math.max(.5,r.pf)));
+  const Ip=I/par,Ir=Ip*kc/kcor,L=Lof(r.L),Smin=k*Ip*L*RHO2/(dvl/100*U),sz=pickSz(r,Ir,Smin);
+  const dv=k*Ip*L*RHO2/Math.max(.01,sz.mm)/U*100;
+  if(r.sz!=='auto'&&sz.amp<Ir)bad.push(r.n);
+  R1.push({r,i,I,Ir,sz,L,dv,len:L*r.q*par,wt:L*r.q*par*sz.w,par});
+ });
+ const dvFeed=R1.length?Math.max(...R1.map(x=>x.dv)):0;
+
+ s2.forEach((r,i)=>{
+  const ph=+r.ph===1?1:3,k=ph===3?Math.sqrt(3):2;
+  const I=r.amp>0?r.amp:(r.kw*1000/((ph===3?Math.sqrt(3):1)*U*Math.max(.5,r.eta)*Math.max(.5,r.pf)));
+  const Ir=I*kc/kcor,L=Lof(r.L),Smin=k*I*L*RHO2/(dvl/100*U),sz=pickSz(r,Ir,Smin);
+  const dv=k*I*L*RHO2/Math.max(.01,sz.mm)/U*100;
+  let len=L*r.q,wt=len*sz.w,runs=r.q;
+  if(r.brk){len+=L*r.q;wt+=L*r.q*BRK2.w;runs+=r.q;}
+  if(r.enc){len+=L*r.q;wt+=L*r.q*ENC2.w;runs+=r.q;}
+  if(r.sz!=='auto'&&sz.amp<Ir)bad.push(r.n);
+  R2.push({r,i,I,Ir,sz,L,dv,len,wt,runs});
+ });
+
+ s3.forEach((r,i)=>{
+  const c=INS.find(x=>x.n===r.c)||INS[0],L=Lof(r.L);
+  const dv=c.mm>0?2*r.amp*L*RHO2/c.mm/Ui*100:NaN;
+  R3.push({r,i,c,L,dv,len:L*r.q,wt:L*r.q*c.w});
+ });
+
+ const sum=a=>a.reduce((x,y)=>x+y,0);
+ const L1=sum(R1.map(x=>x.len)),L2=sum(R2.map(x=>x.len)),L3=sum(R3.map(x=>x.len));
+ const W=sum(R1.map(x=>x.wt))+sum(R2.map(x=>x.wt))+sum(R3.map(x=>x.wt));
+ const n1=sum(R1.map(x=>x.r.q*x.par)),n2=sum(R2.map(x=>x.runs)),n3=sum(R3.map(x=>x.r.q));
+ const nAll=n1+n2+n3,Lall=L1+L2+L3;
+ const odMax=Math.max(...R1.map(x=>x.sz.od),...R2.map(x=>x.sz.od),...R3.map(x=>x.c.od),1);
+ const dvBr=R2.length?Math.max(...R2.map(x=>x.dv)):0;
+ const dvFest=(cum&&window._e&&window._e.mres&&window._e.mres.length)?Math.max(...window._e.mres.map(m=>m.dv||0)):0;
+ const dvCrab=dvFeed+dvFest;
+ const dvIns=R3.filter(x=>isFinite(x.dv)).length?Math.max(...R3.filter(x=>isFinite(x.dv)).map(x=>x.dv)):0;
+
+ $('kpis2').innerHTML=[
+  [T('m2_k1'),fx(L1,0),T('u_m')],[T('m2_k2'),fx(L2,0),T('u_m')],[T('m2_k3'),fx(L3,0),T('u_m')],
+  [T('m2_ktot'),fx(Lall,0),T('u_m')],[T('m2_krun'),nAll,T('u_core')],[T('m2_kdv'),fx(dvCrab),'%'],
+  [sub(T('m2_kall'),{q:qty}),fx(Lall*qty,0),T('u_m')]
+ ].map(k=>`<div class="kpi"><div class="k">${k[0]}</div><div class="v">${k[1]} <small>${k[2]}</small></div></div>`).join('');
+
+ const ck=[],o1=dvFeed<=dvl,o2=dvBr<=dvl,o3=dvCrab<=dvt,o4=dvIns<=dvt;
+ ck.push([o1,sub(T('m2_ck1'),{a:fx(dvFeed),op:o1?'≤':'>',b:fx(dvl,1)})]);
+ ck.push([o2,sub(T('m2_ck2'),{a:fx(dvBr),op:o2?'≤':'>',b:fx(dvl,1)})]);
+ ck.push([o3,sub(T('m2_ck3'),{a:fx(dvCrab),op:o3?'≤':'>',b:fx(dvt,1)})]);
+ ck.push([o4,sub(T('m2_ck4'),{a:fx(dvIns),op:o4?'≤':'>',b:fx(dvt,1)})]);
+ ck.push([bad.length===0,bad.length?T('m2_ck5')+[...new Set(bad)].join(', '):T('m2_ck5g')]);
+ if(cum&&!(window._e&&window._e.mres))ck.push([false,T('m2_ck6')]);
+ $('checks2').innerHTML=ck.map(c=>`<div class="flag ${c[0]?'':'bad'}">${c[0]?'✓':'✕'} ${c[1]}</div>`).join('');
+
+ $('t1').querySelector('tbody').innerHTML=R1.map(x=>{const r=x.r,i=x.i;return `<tr>
+  <td class="l"><input value="${r.n}" onchange="eS(1,${i},'n',this.value)"></td>
+  <td class="l"><input value="${r.fr}" onchange="eS(1,${i},'fr',this.value)"></td>
+  <td class="l"><input value="${r.to}" onchange="eS(1,${i},'to',this.value)"></td>
+  <td><input type="number" step="0.5" value="${r.kw}" onchange="eS(1,${i},'kw',this.value)"></td>
+  <td><input type="number" step="1" value="${r.amp}" onchange="eS(1,${i},'amp',this.value)"></td>
+  <td><input type="number" step="0.01" value="${r.eta}" onchange="eS(1,${i},'eta',this.value)"></td>
+  <td><input type="number" step="0.01" value="${r.pf}" onchange="eS(1,${i},'pf',this.value)"></td>
+  <td>${phSel(1,i,r.ph)}</td>
+  <td><input type="number" step="0.5" value="${r.L}" onchange="eS(1,${i},'L',this.value)"></td>
+  <td><input type="number" step="1" value="${r.par}" onchange="eS(1,${i},'par',this.value)"></td>
+  <td><input type="number" step="1" value="${r.q}" onchange="eS(1,${i},'q',this.value)"></td>
+  <td>${fx(x.I,1)}</td><td>${fx(x.Ir,1)}</td><td>${szSel(1,i,r.sz)}</td><td>${x.sz.od}</td>
+  <td class="${x.dv>dvl?'bad':''}">${fx(x.dv)}</td><td>${fx(x.len,1)}</td>
+  <td style="text-align:center"><button class="btn sm" onclick="dS(1,${i})">×</button></td></tr>`;}).join('')
+  +`<tr class="sum"><td class="l">Σ ${s1.length}</td><td colspan="10"></td><td>${fx(sum(R1.map(x=>x.I*x.r.q)),1)}</td>
+    <td colspan="4"></td><td>${fx(L1,1)}</td><td></td></tr>`;
+
+ $('t2').querySelector('tbody').innerHTML=R2.map(x=>{const r=x.r,i=x.i;return `<tr>
+  <td class="l"><input value="${r.n}" onchange="eS(2,${i},'n',this.value)"></td>
+  <td><input type="number" step="0.5" value="${r.kw}" onchange="eS(2,${i},'kw',this.value)"></td>
+  <td><input type="number" step="1" value="${r.amp}" onchange="eS(2,${i},'amp',this.value)"></td>
+  <td><input type="number" step="0.01" value="${r.eta}" onchange="eS(2,${i},'eta',this.value)"></td>
+  <td><input type="number" step="0.01" value="${r.pf}" onchange="eS(2,${i},'pf',this.value)"></td>
+  <td>${phSel(2,i,r.ph)}</td>
+  <td><input type="number" step="0.5" value="${r.L}" onchange="eS(2,${i},'L',this.value)"></td>
+  <td><input type="number" step="1" value="${r.q}" onchange="eS(2,${i},'q',this.value)"></td>
+  <td><input type="checkbox" ${r.brk?'checked':''} onchange="tS(2,${i},'brk',this.checked)"></td>
+  <td><input type="checkbox" ${r.enc?'checked':''} onchange="tS(2,${i},'enc',this.checked)"></td>
+  <td>${fx(x.I,1)}</td><td>${fx(x.Ir,1)}</td><td>${szSel(2,i,r.sz)}</td><td>${x.sz.od}</td>
+  <td class="${x.dv>dvl?'bad':''}">${fx(x.dv)}</td>
+  <td>${fx(x.len,1)}</td><td style="text-align:center"><button class="btn sm" onclick="dS(2,${i})">×</button></td></tr>`;}).join('')
+  +`<tr class="sum"><td class="l">Σ ${s2.length}</td><td>${fx(sum(s2.map(r=>r.kw*r.q)),1)}</td><td colspan="9"></td>
+    <td>${fx(sum(R2.map(x=>x.Ir)),1)}</td><td colspan="3"></td><td>${fx(L2,1)}</td><td></td></tr>`;
+
+ $('t3').querySelector('tbody').innerHTML=R3.map(x=>{const r=x.r,i=x.i;return `<tr>
+  <td class="l"><input value="${r.n}" onchange="eS(3,${i},'n',this.value)"></td>
+  <td class="l"><input value="${r.rt}" onchange="eS(3,${i},'rt',this.value)"></td>
+  <td class="l">${insSel(i,r.c)}</td>
+  <td><input type="number" step="1" value="${r.L}" onchange="eS(3,${i},'L',this.value)"></td>
+  <td><input type="number" step="1" value="${r.q}" onchange="eS(3,${i},'q',this.value)"></td>
+  <td><input type="number" step="0.01" value="${r.amp}" onchange="eS(3,${i},'amp',this.value)"></td>
+  <td>${x.c.od}</td><td>${fx(x.c.w,2)}</td>
+  <td class="${x.dv>dvt?'bad':''}">${isFinite(x.dv)?fx(x.dv):'—'}</td><td>${fx(x.len,1)}</td>
+  <td style="text-align:center"><button class="btn sm" onclick="dS(3,${i})">×</button></td></tr>`;}).join('')
+  +`<tr class="sum"><td class="l">Σ ${s3.length}</td><td colspan="8"></td><td>${fx(L3,1)}</td><td></td></tr>`;
+
+ const S=TXT[LG].m2_s;
+ $('sum2').innerHTML='<tbody>'+[[S[0],fx(L1,0),T('u_m')],[S[1],fx(L2,0),T('u_m')],[S[2],fx(L3,0),T('u_m')],
+  [S[3],fx(Lall,0),T('u_m')],[S[4],fx(W,0),T('u_kg')],[S[5],nAll,T('u_core')],[S[6],fx(odMax,0),'mm'],
+  [sub(S[7],{q:qty}),fx(Lall*qty,0),T('u_m')]]
+  .map((r,i)=>`<tr class="${i===7?'hi':''}"><td class="l">${r[0]}</td><td>${r[1]}</td><td style="text-align:center">${r[2]}</td></tr>`).join('')+'</tbody>';
+ const sp=Math.max(1,F('Lspan')),B=TXT[LG].m2_b;
+ $('bom2').innerHTML='<tbody>'+[[B[0],fx(sp,0),T('u_m')],[B[1],fx(sum(R2.map(x=>x.L*x.r.q)),0),T('u_m')],
+  [B[2],nAll*2,'pcs'],[B[3],2,T('u_set')],[B[4],(n1+sum(R2.map(x=>x.r.q)))*5*2,'pcs'],
+  [B[5],Math.ceil(sp/.6),'pcs'],[B[6],fx(W,0),T('u_kg')]]
+  .map(r=>`<tr><td class="l">${r[0]}</td><td>${r[1]}</td><td style="text-align:center">${r[2]}</td></tr>`).join('')+'</tbody>';
+
+ $('d2tag').textContent=$('tag').value||'—';
+ $('d2state').textContent=sub(T('m2_state'),{a:nAll,b:fx(Lall,0)});
+ const sp2=Math.max(1,F('Lspan'));
+ draw2({n1,n2,L1,L2,sp:sp2,dvFeed,dvCrab,nLT:sum(R2.map(x=>x.r.q)),
+  Lr1:R1.length?Math.max(...R1.map(x=>x.r.L)):0,
+  Lr2:R2.length?Math.max(...R2.map(x=>x.r.L)):0,
+  Lr2n:R2.length?Math.min(...R2.map(x=>x.r.L)):0});
+ window._e2={R1,R2,R3,L1,L2,L3,Lall,W,n1,n2,n3,nAll,odMax,qty,dvFeed,dvBr,dvCrab,dvIns};
+}
+
+/* ---------- sơ đồ mặt bằng xe lớn ---------- */
+function draw2(o){
+ const MONO='"IBM Plex Mono",Consolas,monospace',W=1000,mx=80,IW=W-2*mx;
+ const yG1=150,yG2=236,GH=14,p=panelPos();
+ let g=`<rect x="${mx-32}" y="${yG1-14}" width="22" height="${yG2-yG1+42}" fill="#2A2F32" stroke="#4A5155"/>
+  <rect x="${W-mx+10}" y="${yG1-14}" width="22" height="${yG2-yG1+42}" fill="#2A2F32" stroke="#4A5155"/>
+  <rect x="${mx}" y="${yG1}" width="${IW}" height="${GH}" fill="#3A4145"/>
+  <rect x="${mx}" y="${yG2}" width="${IW}" height="${GH}" fill="#3A4145"/>
+  <text x="${mx+150}" y="${yG1-24}" fill="#697069" font-family='${MONO}' font-size="9.5">${T('m2_d_g1')}</text>
+  <text x="${mx+150}" y="${yG2-6}" fill="#697069" font-family='${MONO}' font-size="9.5">${T('m2_d_g2')}</text>`;
+ const yb=yG1-16,xf=W-mx-40,cbw=112,cbx=mx+IW*0.40;
+ /* tủ điện chính — lệch về một phía, đặt trên dầm mang festoon */
+ const pw=170,phh=50,xp=Math.min(xf-pw/2-70,Math.max(mx+pw/2+10,mx+p*IW)),px=xp-pw/2,py=52;
+ g+=`<line x1="${xp}" y1="${py+phh}" x2="${xp}" y2="${yG1}" stroke="#F5C518" stroke-width="2.5"/>
+  <rect x="${px}" y="${py}" width="${pw}" height="${phh}" fill="#22282B" stroke="#F5C518" stroke-width="2"/>
+  <text x="${xp}" y="${py+21}" fill="#F5C518" font-family='${MONO}' font-size="11" text-anchor="middle">${T('m2_d_pn')}</text>
+  <text x="${xp}" y="${py+38}" fill="#8C948F" font-family='${MONO}' font-size="9.5" text-anchor="middle">${fx(o.sp*p,1)} m / ${fx(o.sp,1)} m</text>`;
+ /* ① tủ -> điểm cấp festoon ở đầu dầm */
+ g+=`<path d="M${px+pw},${py+30} H${xf} V${yb}" fill="none" stroke="#F5C518" stroke-width="2.5"/>
+  <rect x="${xf-7}" y="${yb-6}" width="14" height="12" fill="#F5C518"/>
+  <text x="${xf-14}" y="${yb-12}" fill="#F5C518" font-family='${MONO}' font-size="9.5" text-anchor="end">${T('m2_d_fp')}</text>
+  <text x="${px+pw+10}" y="${py+24}" fill="#F5C518" font-family='${MONO}' font-size="10.5">① L ${fx(o.Lr1,1)} m</text>
+  <text x="${px+pw+10}" y="${py+40}" fill="#8C948F" font-family='${MONO}' font-size="9.5">${o.n1} ${T('m2_d_run')} · Σ ${fx(o.L1,0)} m · ΔU ${fx(o.dvFeed)} %</text>`;
+ /* festoon + xe con */
+ g+=`<line x1="${cbx+cbw/2}" y1="${yb}" x2="${xf}" y2="${yb}" stroke="#4A5155" stroke-width="2"/>`;
+ const nl=5,st=(xf-cbx-cbw/2)/nl;
+ for(let i=0;i<nl;i++){const a=cbx+cbw/2+i*st;
+  g+=`<path d="M${a.toFixed(1)},${yb} Q${(a+st/2).toFixed(1)},${yb+28} ${(a+st).toFixed(1)},${yb}" fill="none" stroke="#3FBFB4" stroke-width="2"/>`;}
+ g+=`<rect x="${cbx}" y="${yG1+24}" width="${cbw}" height="${yG2-yG1-24}" fill="#22282B" stroke="#3FBFB4" stroke-width="1.5"/>
+  <text x="${cbx+cbw/2}" y="${(yG1+yG2)/2+16}" fill="#EDEFEA" font-family='${MONO}' font-size="10" text-anchor="middle">${T('m2_d_cr')}</text>
+  <line x1="${cbx+cbw/2}" y1="${yb}" x2="${cbx+cbw/2}" y2="${yG1+24}" stroke="#3FBFB4" stroke-width="2" stroke-dasharray="4 3"/>`;
+ /* ② tủ -> động cơ chạy dọc ở hai xe đầu cầu */
+ const yb2=(yG1+GH+yG2)/2,xL=mx-21,xR=W-mx+21,yM1=yG1+GH/2,yM2=yG2+GH/2;
+ g+=`<path d="M${xp},${yG1+GH} V${yb2} H${xL} M${xp},${yb2} H${xR}
+   M${xL},${yM1} V${yM2} M${xR},${yM1} V${yM2}" fill="none" stroke="#F5C518" stroke-width="2.5"/>`;
+ const nearLeft=p<=.5,LL=nearLeft?o.Lr2n:o.Lr2,LR=nearLeft?o.Lr2:o.Lr2n;
+ [[xL,LL],[xR,LR]].forEach(e=>{[yM1,yM2].forEach(y=>{
+   g+=`<rect x="${e[0]-27}" y="${y-11}" width="54" height="22" fill="#C4452F" opacity=".24" stroke="#C4452F"/>
+    <text x="${e[0]}" y="${y+4}" fill="#E0664F" font-family='${MONO}' font-size="10" text-anchor="middle">M</text>`;});
+  g+=`<text x="${e[0]}" y="${yM1-18}" fill="#E0664F" font-family='${MONO}' font-size="9.5" text-anchor="middle">L ${fx(e[1],1)} m</text>`;});
+ g+=`<text x="${mx+40}" y="${yb2-9}" fill="#F5C518" font-family='${MONO}' font-size="10.5">② ${o.n2} ${T('m2_d_run')} · Σ ${fx(o.L2,0)} m</text>
+  <text x="${mx+40}" y="${yb2+16}" fill="#E0664F" font-family='${MONO}' font-size="9.5">${T('m2_d_lt')} ×${o.nLT}</text>`;
+ /* khẩu độ + vị trí tủ */
+ const yd=286;
+ g+=`<line x1="${mx}" y1="${yd}" x2="${W-mx}" y2="${yd}" stroke="#8C948F"/>
+  <line x1="${mx}" y1="${yd-5}" x2="${mx}" y2="${yd+5}" stroke="#8C948F"/>
+  <line x1="${W-mx}" y1="${yd-5}" x2="${W-mx}" y2="${yd+5}" stroke="#8C948F"/>
+  <line x1="${xp}" y1="${yd-6}" x2="${xp}" y2="${yd+6}" stroke="#F5C518" stroke-width="2"/>
+  <text x="${(mx+xp)/2}" y="${yd-8}" fill="#C9CFCB" font-family='${MONO}' font-size="10.5" text-anchor="middle">${fx(o.sp*p,1)} m</text>
+  <text x="${(xp+W-mx)/2}" y="${yd-8}" fill="#C9CFCB" font-family='${MONO}' font-size="10.5" text-anchor="middle">${fx(o.sp*(1-p),1)} m</text>`;
+ $('svg2').innerHTML=g;
+}
+
+function copy2(){
+ const e=window._e2;if(!e)return;
+ const L=[['Project',$('prj').value],['Crane',$('tag').value],['Cranes',e.qty],['Span (m)',$('Lspan').value],[''],
+  ['SECTION','TAG','FROM','TO','kW','I(A)','I req','SIZE','OD','L run (m)','Qty','dU %','Total m']];
+ e.R1.forEach(x=>L.push(['1 Panel-Festoon',x.r.n,x.r.fr,x.r.to,x.r.kw,fx(x.I,1),fx(x.Ir,1),x.sz.n,x.sz.od,fx(x.L,1),x.r.q*x.par,fx(x.dv),fx(x.len,1)]));
+ e.R2.forEach(x=>L.push(['2 Panel-Travel motor',x.r.n,'Main panel',x.r.n,x.r.kw,fx(x.I,1),fx(x.Ir,1),x.sz.n,x.sz.od,fx(x.L,1),x.runs,fx(x.dv),fx(x.len,1)]));
+ e.R3.forEach(x=>L.push(['3 Instrument',x.r.n,x.r.rt,'',' ',x.r.amp,'',x.c.n,x.c.od,fx(x.L,1),x.r.q,isFinite(x.dv)?fx(x.dv):'-',fx(x.len,1)]));
+ L.push(['']);L.push(['Total 1 (m)',fx(e.L1,0)]);L.push(['Total 2 (m)',fx(e.L2,0)]);L.push(['Total 3 (m)',fx(e.L3,0)]);
+ L.push(['Total per crane (m)',fx(e.Lall,0)]);L.push(['Total runs',e.nAll]);L.push(['Weight (kg)',fx(e.W,0)]);
+ L.push(['dU to crab motors (%)',fx(e.dvCrab)]);
+ L.push(['TOTAL x '+e.qty+' cranes (m)',fx(e.Lall*e.qty,0)]);
+ const txt=L.map(r=>r.join('\t')).join('\n');
+ navigator.clipboard.writeText(txt).then(()=>alert('Copied '+L.length+' rows.'),()=>{
+  const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();
+  document.execCommand('copy');t.remove();alert('Copied.');});
+}
+
+/* ---------- chuyển chế độ ---------- */
+let MODE=0;
+const MNAME={1:'m1_name',2:'m2_name',3:'m3_name'};
+function setMode(m){
+ MODE=m;
+ $('modepick').classList.toggle('hide',m!==0);
+ [1,2,3].forEach(k=>{const el=$('mode'+k);if(el)el.classList.toggle('hide',m!==k);});
+ $('btnback').classList.toggle('hide',m===0);
+ $('hmode').textContent=m?T(MNAME[m]):'';
+ if(m===1)calc();if(m===2)calc2();if(m===3)calc3();
+ window.scrollTo(0,0);
+}
+const IDS2=['Lspan','ppos','volti','kcor','kcont','dvlim','dvtot','slack','allow','divf'];
+
+
+/* ================= CHẾ ĐỘ 3 — thanh dẫn điện & CHẾ ĐỘ 4 — yêu cầu gói ================= */
+const TXT3={
+vi:{
+ p3_h:"Thanh dẫn điện (trolley bar)",p3_p:"Tuyến cấp điện dọc nhà xưởng cho cả bay: chọn dòng định mức, số điểm cấp nguồn, sụt áp dọc thanh và bóc vật tư.",
+ p3_a:"Dòng bay theo số cẩu + hệ số đồng thời",p3_b:"Sụt áp dọc thanh theo điểm cấp nguồn",p3_c:"Bracket, insulator, joint keeper, khe giãn nở",p3_d:"Preset 5 bay của gói 2-1 / 2-2",
+ m3_name:"MODE 03 · THANH DẪN ĐIỆN",
+ m3_hin:"Thông số đầu vào",m3_g1:"1 · Bay & cẩu",m3_g2:"2 · Điện",m3_g3:"3 · Cấp nguồn & phân đoạn",m3_g4:"4 · Quy tắc bóc vật tư",
+ m3_bay:"Bay (theo hồ sơ gói)",m3_ltr:"Chiều dài chạy dọc (thanh dẫn)",m3_tor:"T.O.R",m3_ncr:"Số cẩu trên bay",m3_icr:"Dòng mỗi cẩu",
+ m3_bimp:"Lấy dòng từ chế độ 2",m3_np:"Số cực (3P + PE)",m3_cap:"Dòng định mức thanh dẫn",m3_r:"Điện trở thanh dẫn (0 = theo bảng)",
+ m3_dv:"Sụt áp cho phép trên thanh",m3_fmax:"Khoảng cách cấp nguồn tối đa",m3_nf:"Số điểm cấp nguồn (0 = tự tính)",
+ m3_iso:"Số đoạn cách ly (isolation section)",m3_col:"Số bộ lấy điện mỗi cẩu (double)",
+ m3_bu:"Chiều dài 1 đoạn thanh",m3_pb:"Bước giá đỡ (bracket)",m3_pe:"Bước khe giãn nở / điểm cố định",m3_pl:"Bước đèn báo pha",m3_pc:"Bước cáp bù áp",
+ m3_note:'Quy tắc mặc định lấy ngược từ sheet "Rail_Trolley Bar" của bảng giá Rev4 (đã kiểm chứng trên 3 bay).',
+ m3_dt:"Mặt đứng thanh dẫn điện",m3_hres:"Kết quả điện",m3_hbom:"Vật tư thanh dẫn (1 bay)",m3_hsens:"Độ nhạy theo số điểm cấp nguồn",
+ m3_s_n:"Điểm cấp",m3_s_d:"Khoảng cách tới điểm xa nhất (m)",m3_s_dv:"ΔU (%)",m3_s_v:"ΔU (V)",m3_s_ok:"Đạt",
+ m3_k1:"Dòng định mức chọn",m3_k2:"Dòng bay tính toán",m3_k3:"Điểm cấp nguồn",m3_k4:"ΔU dọc thanh",m3_k5:"Tổng chiều dài thanh",m3_k6:"Giá đỡ (bracket)",
+ m3_r1:["Dòng mỗi cẩu","Dòng bay (1 cẩu + các cẩu còn lại × đồng thời)","Dòng yêu cầu sau hiệu chỉnh","Dòng định mức thanh dẫn chọn","Điện trở thanh dẫn","Số điểm cấp nguồn","Khoảng cách tới điểm xa nhất","Sụt áp dọc thanh","Sụt áp dọc thanh"],
+ m3_b1:["Thanh dẫn — đoạn {u} m","Thanh dẫn — tổng chiều dài","Giá đỡ (bracket) @ {p} m","Insulator","Joint keeper","Khe giãn nở @ {e} m","Điểm cố định (anchor) @ {e} m","Bộ cấp nguồn (power feeder)","Đèn báo pha @ {l} m","Nắp bịt đầu (end cap)","Đoạn cách ly + tủ isolation","Bộ lấy điện (collector, double type)","Cáp bù áp @ {c} m","Main power panel"],
+ m3_c1:"Dòng định mức {a} A {op} dòng yêu cầu {b} A",
+ m3_c2:"Sụt áp dọc thanh {a} % {op} {b} % cho phép",
+ m3_c3:"Khoảng cách giữa 2 điểm cấp nguồn {a} m {op} {b} m theo yêu cầu gói",
+ m3_c4:"Có {a} đoạn cách ly + tủ isolation — đúng yêu cầu tách đoạn giữa thanh dẫn",
+ m3_c4b:"Chưa khai báo đoạn cách ly — gói yêu cầu tách đoạn giữa bằng vật liệu cách điện + tủ isolation",
+ m3_c5:"Bộ lấy điện double type: {a} bộ cho {b} cẩu",
+ m3_c6:"Bay này trong bảng giá Rev4 chưa có số liệu thanh dẫn — số đang tính là giả định",
+ m3_d_bar:"THANH DẪN",m3_d_feed:"CẤP NGUỒN",m3_d_iso:"ĐOẠN CÁCH LY",m3_d_cr:"CẨU",m3_state:"{a} A · {b} m · ΔU {c} %",
+ basis3:`<p><b>Dòng tính toán.</b> <code>I_bay = I_cẩu × [1 + (n_cẩu − 1) × hệ_số_đồng_thời]</code> — lấy 1 cẩu chạy đầy tải,
+ các cẩu còn lại quy về hệ số đồng thời. <code>I_yêu_cầu = I_bay × k_liên_tục × k_chu_kỳ / k_nhiệt_độ</code>.</p>
+ <p><b>Sụt áp.</b> Cấp nguồn chia đều dọc thanh, điểm xa nhất cách nguồn <code>d = L/(2·n_cấp)</code>;
+ <code>ΔU = √3 · I_bay · d · r</code> với r là điện trở thanh dẫn (mΩ/m). Đây là giả thiết bảo thủ — coi như toàn bộ tải bay
+ tập trung tại điểm xa nhất. Nếu tính chính xác hơn thì phân bố tải theo vị trí thực của từng cẩu.</p>
+ <p><b>Bóc vật tư.</b> Quy tắc mặc định lấy ngược từ sheet <code>Rail_Trolley Bar</code> (bảng giá Rev4) và đã kiểm chứng khớp
+ trên các bay SC 1-1, H 8, ICS: đoạn thanh <code>ceil(L/6)×n_cực</code>; bracket <code>ceil(L/1,5)+1</code>;
+ insulator <code>bracket × n_cực</code>; joint keeper <code>(ceil(L/6) − 1) × n_cực</code>;
+ khe giãn nở và điểm cố định <code>ceil(L/24) × n_cực</code>; power feeder <code>n_cực</code> mỗi điểm cấp; đèn báo pha <code>ceil(L/50)</code>.</p>
+ <p><b>Yêu cầu gói liên quan.</b> Thanh dẫn steel based copper head kèm insulator; pantograph double type;
+ điểm cấp nguồn cách nhau 100–150 m; kèm current collector, đèn báo pha, section isolation, joint keeper, joint và
+ cáp bù áp mỗi 100 m; thanh dẫn phải được tách đoạn giữa bằng vật liệu cách điện với tủ isolation kề bên.</p>
+ <p style="color:#697069"><b>Giới hạn.</b> Bảng điện trở theo dòng định mức là giá trị tham khảo cho thanh steel/copper —
+ phải thay bằng số catalogue VAHLE / Conductix trước khi phát hành. Dòng mỗi cẩu hiện là giả định, cần lấy từ bảng tải thực tế.</p>`},
+en:{
+ p3_h:"Conductor bar (trolley bar)",p3_p:"The runway power line feeding the whole bay: rating, feed points, voltage drop along the bar and material take-off.",
+ p3_a:"Bay current from crane count + diversity",p3_b:"Voltage drop vs number of feed points",p3_c:"Brackets, insulators, joint keepers, expansion",p3_d:"Presets for the 5 bays of package 2-1 / 2-2",
+ m3_name:"MODE 03 · CONDUCTOR BAR",
+ m3_hin:"Input data",m3_g1:"1 · Bay & cranes",m3_g2:"2 · Electrical",m3_g3:"3 · Feeding & sectioning",m3_g4:"4 · Take-off rules",
+ m3_bay:"Bay (per package documents)",m3_ltr:"Long travel length (bar)",m3_tor:"T.O.R",m3_ncr:"Cranes on the bay",m3_icr:"Current per crane",
+ m3_bimp:"Take current from mode 2",m3_np:"Poles (3P + PE)",m3_cap:"Bar rated current",m3_r:"Bar resistance (0 = from table)",
+ m3_dv:"Allowable drop along the bar",m3_fmax:"Max spacing between feed points",m3_nf:"Feed points (0 = auto)",
+ m3_iso:"Isolation sections",m3_col:"Collectors per crane (double)",
+ m3_bu:"Bar section length",m3_pb:"Bracket pitch",m3_pe:"Expansion / anchor pitch",m3_pl:"Indicator lamp pitch",m3_pc:"Compensating cable pitch",
+ m3_note:'Default rules reverse-engineered from the "Rail_Trolley Bar" sheet of the Rev4 estimate (verified on 3 bays).',
+ m3_dt:"Conductor bar elevation",m3_hres:"Electrical results",m3_hbom:"Conductor bar material (1 bay)",m3_hsens:"Sensitivity vs feed points",
+ m3_s_n:"Feed points",m3_s_d:"Distance to farthest point (m)",m3_s_dv:"ΔU (%)",m3_s_v:"ΔU (V)",m3_s_ok:"OK",
+ m3_k1:"Selected rating",m3_k2:"Calculated bay current",m3_k3:"Feed points",m3_k4:"ΔU along the bar",m3_k5:"Total bar length",m3_k6:"Brackets",
+ m3_r1:["Current per crane","Bay current (1 crane + others × diversity)","Required current after derating","Selected bar rating","Bar resistance","Feed points","Distance to farthest point","Voltage drop along the bar","Voltage drop along the bar"],
+ m3_b1:["Bar — {u} m sections","Bar — total length","Bracket @ {p} m","Insulator","Joint keeper","Expansion @ {e} m","Anchor point @ {e} m","Power feeder","Indicator lamp @ {l} m","End cap","Isolation section + panel","Collector (double type)","Compensating cable @ {c} m","Main power panel"],
+ m3_c1:"Rated current {a} A {op} required {b} A",
+ m3_c2:"Voltage drop along the bar {a} % {op} {b} % allowed",
+ m3_c3:"Spacing between feed points {a} m {op} {b} m required by the package",
+ m3_c4:"{a} isolation section(s) with panel — meets the mid-span sectioning requirement",
+ m3_c4b:"No isolation section defined — the package requires a mid-span insulated split with an isolation panel",
+ m3_c5:"Double-type collectors: {a} sets for {b} cranes",
+ m3_c6:"This bay has no conductor bar figures in the Rev4 estimate — the numbers shown are assumptions",
+ m3_d_bar:"CONDUCTOR BAR",m3_d_feed:"FEED",m3_d_iso:"ISOLATION",m3_d_cr:"CRANE",m3_state:"{a} A · {b} m · ΔU {c} %",
+ basis3:`<p><b>Bay current.</b> <code>I_bay = I_crane × [1 + (n_cranes − 1) × diversity]</code> — one crane at full load,
+ the rest reduced by the diversity factor. <code>I_required = I_bay × k_continuous × k_duty / k_temp</code>.</p>
+ <p><b>Voltage drop.</b> Feed points are spread evenly, so the farthest point is <code>d = L/(2·n_feeds)</code> away;
+ <code>ΔU = √3 · I_bay · d · r</code> with r the bar resistance (mΩ/m). This is conservative — it assumes the whole bay load
+ sits at the farthest point. For a sharper figure, distribute the load over the actual crane positions.</p>
+ <p><b>Material take-off.</b> The default rules are reverse-engineered from the <code>Rail_Trolley Bar</code> sheet (Rev4 estimate)
+ and match bays SC 1-1, H 8 and ICS: bar sections <code>ceil(L/6)×poles</code>; brackets <code>ceil(L/1.5)+1</code>;
+ insulators <code>brackets × poles</code>; joint keepers <code>(ceil(L/6) − 1) × poles</code>;
+ expansion and anchor points <code>ceil(L/24) × poles</code>; power feeder <code>poles</code> per feed point; lamps <code>ceil(L/50)</code>.</p>
+ <p><b>Related package requirements.</b> Steel-based copper-head bar with insulator; double-type pantograph;
+ feed points every 100–150 m; current collector, indicator lamp, section isolation, joint keeper, joint and
+ a compensating cable every 100 m; the bar must be split mid-span with insulating material and an adjacent isolation panel.</p>
+ <p style="color:#697069"><b>Limits.</b> The resistance table is a reference for steel/copper bars —
+ replace it with VAHLE / Conductix catalogue figures before issue. The current per crane is an assumption pending the real load list.</p>`}
+};
+Object.assign(TXT.vi,TXT3.vi);Object.assign(TXT.en,TXT3.en);
+
+/* ---------- dữ liệu thanh dẫn ---------- */
+const BAR=[{a:500,r:.055},{a:800,r:.040},{a:1000,r:.032},{a:1200,r:.027},{a:1500,r:.022},{a:2000,r:.017},{a:2500,r:.014}];
+const BAYS={
+ H7:{n:"H 7 · HR12, HR14",L:250,tor:10,ncr:2,cap:1000,ok:1},
+ H8:{n:"H 8 · HR15, HR17",L:250,tor:10,ncr:2,cap:1000,ok:1},
+ H9:{n:"H 9 · HR18, HR19, HR20",L:362,tor:10,ncr:3,cap:0,ok:0},
+ ICS:{n:"ICS · CRM9, CRM10, CRM42",L:370,tor:10,ncr:3,cap:1500,ok:0},
+ PO:{n:"PO · CRM38",L:139,tor:15,ncr:1,cap:500,ok:1},
+ CUSTOM:{n:"— tự nhập —",L:250,tor:10,ncr:2,cap:0,ok:1}};
+function fillBaySel(){
+ const s=$('bay3');if(!s||s.options.length)return;
+ s.innerHTML=Object.keys(BAYS).map(k=>`<option value="${k}">${BAYS[k].n}</option>`).join('');
+ $('barcap').innerHTML='<option value="auto">auto</option>'+BAR.map(b=>`<option value="${b.a}">${b.a} A</option>`).join('');
+}
+function loadBay(){const b=BAYS[$('bay3').value];if(!b)return;
+ $('Ltr').value=b.L;$('tor').value=b.tor;$('ncr').value=b.ncr;
+ $('barcap').value=b.cap?String(b.cap):'auto';calc3();}
+function loadIcr(){
+ if(window._e2&&window._e2.R1){
+  const e=window._e2,I=e.R1.reduce((x,r)=>x+r.I*r.r.q,0)+e.R2.reduce((x,r)=>x+r.I*r.r.q,0);
+  if(I>0)$('Icr').value=Math.round(I*10)/10;}
+ else if(window._e&&window._e.mres){
+  let I=0;window._e.mres.forEach(m=>I+=m.I*m.m.q);$('Icr').value=Math.round(I*10)/10;}
+ calc3();}
+function reset3(){
+ const D={prj3:'',bay3:'H8',Ltr:250,tor:10,ncr:2,Icr:170,divf3:.8,volt3:480,npole:4,barcap:'auto',rmm:0,
+  kT3:.91,kD3:1,kcont3:1.25,dv3:3,feedmax:150,nfeed:0,nISO:1,ncol:2,barU:6,pitchB:1.5,pitchE:24,lampP:50,compP:100};
+ IDS3.forEach(i=>{if(D[i]!==undefined)$(i).value=D[i];});calc3();}
+
+function calc3(){
+ if(!$('res3'))return;
+ const L=Math.max(1,F('Ltr')),ncr=Math.max(1,F('ncr')),Icr=F('Icr'),dv=Math.max(.05,F('divf3'));
+ const U=Math.max(1,F('volt3')),np=Math.max(1,Math.round(F('npole')));
+ const kT=Math.max(.1,F('kT3')),kD=Math.max(.1,F('kD3')),kc=Math.max(1,F('kcont3')),dvm=F('dv3');
+ const fmax=Math.max(10,F('feedmax')),nfIn=Math.round(F('nfeed')),nISO=Math.round(F('nISO')),ncol=Math.round(F('ncol'));
+ const bu=Math.max(1,F('barU')),pb=Math.max(.2,F('pitchB')),pe=Math.max(1,F('pitchE')),pl=Math.max(1,F('lampP')),pc=Math.max(1,F('compP'));
+ const Ibay=Icr*(1+(ncr-1)*dv),Ireq=Ibay*kc*kD/kT;
+ const sel=$('barcap').value,bar=sel==='auto'?(BAR.find(b=>b.a>=Ireq)||BAR[BAR.length-1]):(BAR.find(b=>b.a===+sel)||BAR[0]);
+ const r=F('rmm')>0?F('rmm'):bar.r;
+ const nf=nfIn>0?nfIn:Math.max(1,Math.ceil(L/fmax)),d=L/(2*nf);
+ const dU=Math.sqrt(3)*Ibay*d*r/1000,dUp=dU/U*100,spacing=L/nf;
+
+ const nsec=Math.ceil(L/bu),nbkt=Math.ceil(L/pb)+1,nexp=Math.ceil(L/pe),nlamp=Math.ceil(L/pl),ncomp=Math.ceil(L/pc);
+
+ $('kpis3').innerHTML=[
+  [T('m3_k1'),bar.a,'A'],[T('m3_k2'),fx(Ibay,0),'A'],[T('m3_k3'),nf,'pcs'],
+  [T('m3_k4'),fx(dUp),'%'],[T('m3_k5'),fx(L*np,0),T('u_m')],[T('m3_k6'),nbkt,'pcs']
+ ].map(k=>`<div class="kpi"><div class="k">${k[0]}</div><div class="v">${k[1]} <small>${k[2]}</small></div></div>`).join('');
+
+ const ck=[],o1=bar.a>=Ireq,o2=dUp<=dvm,o3=spacing<=fmax;
+ ck.push([o1,sub(T('m3_c1'),{a:bar.a,op:o1?'≥':'<',b:fx(Ireq,0)})]);
+ ck.push([o2,sub(T('m3_c2'),{a:fx(dUp),op:o2?'≤':'>',b:fx(dvm,1)})]);
+ ck.push([o3,sub(T('m3_c3'),{a:fx(spacing,0),op:o3?'≤':'>',b:fx(fmax,0)})]);
+ ck.push([nISO>0,nISO>0?sub(T('m3_c4'),{a:nISO}):T('m3_c4b')]);
+ ck.push([true,sub(T('m3_c5'),{a:ncr*ncol,b:ncr})]);
+ if(!(BAYS[$('bay3').value]||{}).ok)ck.push([false,T('m3_c6')]);
+ $('checks3').innerHTML=ck.map(c=>`<div class="flag ${c[0]?'':'bad'}">${c[0]?'✓':'✕'} ${c[1]}</div>`).join('');
+
+ const R=TXT[LG].m3_r1;
+ $('res3').innerHTML='<tbody>'+[[R[0],fx(Icr,1),'A'],[R[1],fx(Ibay,1),'A'],[R[2],fx(Ireq,1),'A'],
+  [R[3],bar.a,'A'],[R[4],fx(r,3),'mΩ/m'],[R[5],nf,'pcs'],[R[6],fx(d,1),'m'],[R[7],fx(dU,1),'V'],[R[8],fx(dUp),'%']]
+  .map((x,i)=>`<tr class="${i===8?'hi':''}"><td class="l">${x[0]}</td><td>${x[1]}</td><td style="text-align:center">${x[2]}</td></tr>`).join('')+'</tbody>';
+
+ const B=TXT[LG].m3_b1;
+ $('bom3').innerHTML='<tbody>'+[[sub(B[0],{u:fx(bu,1)}),nsec*np,'pcs'],[B[1],fx(L*np,0),T('u_m')],
+  [sub(B[2],{p:fx(pb,1)}),nbkt,'pcs'],[B[3],nbkt*np,'pcs'],[B[4],(nsec-1)*np,'pcs'],
+  [sub(B[5],{e:fx(pe,0)}),nexp*np,'pcs'],[sub(B[6],{e:fx(pe,0)}),nexp*np,'pcs'],
+  [B[7],nf*np,'pcs'],[sub(B[8],{l:fx(pl,0)}),nlamp,'pcs'],[B[9],2*np,'pcs'],
+  [B[10],nISO,T('u_set')],[B[11],ncr*ncol,T('u_set')],[sub(B[12],{c:fx(pc,0)}),ncomp*np,T('u_set')],[B[13],1,T('u_set')]]
+  .map(x=>`<tr><td class="l">${x[0]}</td><td>${x[1]}</td><td style="text-align:center">${x[2]}</td></tr>`).join('')+'</tbody>';
+
+ let rows='';
+ for(let k=1;k<=6;k++){const dk=L/(2*k),vk=Math.sqrt(3)*Ibay*dk*r/1000,pk=vk/U*100;
+  rows+=`<tr class="${k===nf?'hi':''}"><td>${k}</td><td>${fx(dk,1)}</td><td class="${pk>dvm?'bad':''}">${fx(pk)}</td><td>${fx(vk,1)}</td><td>${pk<=dvm?'✓':'✕'}</td></tr>`;}
+ $('sens3').querySelector('tbody').innerHTML=rows;
+
+ $('d3tag').textContent=(BAYS[$('bay3').value]||{}).n||'—';
+ $('d3state').textContent=sub(T('m3_state'),{a:bar.a,b:fx(L,0),c:fx(dUp)});
+ draw3({L,nf,ncr,nISO,bar,dUp,np,nbkt});
+ window._e3={L,ncr,Icr,Ibay,Ireq,bar,r,nf,d,dU,dUp,np,nsec,nbkt,nexp,nlamp,ncomp,nISO,ncol,bu,pb,pe};
+}
+
+function draw3(o){
+ const MONO='"IBM Plex Mono",Consolas,monospace',W=1000,mx=60,y=120,w=W-2*mx,sc=w/o.L;
+ let g=`<rect x="${mx}" y="${y-6}" width="${w}" height="9" fill="#B87333"/>
+  <rect x="${mx}" y="${y+3}" width="${w}" height="4" fill="#4A5155"/>`;
+ for(let i=0;i<=Math.min(o.nbkt,60);i++){const x=mx+i*w/Math.min(o.nbkt,60);
+  g+=`<line x1="${x}" y1="${y-14}" x2="${x}" y2="${y-6}" stroke="#4A5155" stroke-width="2"/>`;}
+ g+=`<text x="${mx}" y="${y-22}" fill="#8C948F" font-family='${MONO}' font-size="10">${T('m3_d_bar')} ${o.bar.a} A · ${o.np}P</text>`;
+ for(let i=0;i<o.nf;i++){const x=mx+(i+.5)*w/o.nf;
+  g+=`<line x1="${x}" y1="${y+7}" x2="${x}" y2="${y+52}" stroke="#F5C518" stroke-width="2.5"/>
+   <polygon points="${x-5},${y+14} ${x},${y+7} ${x+5},${y+14}" fill="#F5C518"/>
+   <rect x="${x-26}" y="${y+52}" width="52" height="22" fill="#22282B" stroke="#4A5155"/>
+   <text x="${x}" y="${y+67}" fill="#F5C518" font-family='${MONO}' font-size="10" text-anchor="middle">${T('m3_d_feed')}</text>`;}
+ if(o.nISO>0)for(let i=1;i<=o.nISO;i++){const x=mx+w*i/(o.nISO+1);
+  g+=`<rect x="${x-4}" y="${y-9}" width="8" height="15" fill="#C4452F"/>
+   <text x="${x}" y="${y-30}" fill="#C4452F" font-family='${MONO}' font-size="10" text-anchor="middle">${T('m3_d_iso')}</text>`;}
+ for(let i=0;i<Math.min(o.ncr,6);i++){const x=mx+w*(i+1)/(Math.min(o.ncr,6)+1);
+  g+=`<line x1="${x}" y1="${y-6}" x2="${x}" y2="${y-42}" stroke="#3FBFB4" stroke-width="2"/>
+   <rect x="${x-34}" y="${y-72}" width="68" height="30" fill="#22282B" stroke="#3FBFB4"/>
+   <text x="${x}" y="${y-53}" fill="#EDEFEA" font-family='${MONO}' font-size="10" text-anchor="middle">${T('m3_d_cr')} ${i+1}</text>`;}
+ const yr=270;
+ g+=`<line x1="${mx}" y1="${yr}" x2="${W-mx}" y2="${yr}" stroke="#8C948F"/>
+  <line x1="${mx}" y1="${yr-6}" x2="${mx}" y2="${yr+6}" stroke="#8C948F"/>
+  <line x1="${W-mx}" y1="${yr-6}" x2="${W-mx}" y2="${yr+6}" stroke="#8C948F"/>
+  <text x="${W/2}" y="${yr-9}" fill="#C9CFCB" font-family='${MONO}' font-size="11" text-anchor="middle">L = ${o.L.toFixed(0)} m · ΔU ${fx(o.dUp)} %</text>`;
+ $('svg3').innerHTML=g;
+}
+
+function copy3(){
+ const e=window._e3;if(!e)return;
+ const L=[['Project',$('prj3').value],['Bay',(BAYS[$('bay3').value]||{}).n||''],[''],
+  ['Bar length (m)',e.L],['Cranes',e.ncr],['I per crane (A)',fx(e.Icr,1)],['I bay (A)',fx(e.Ibay,1)],
+  ['I required (A)',fx(e.Ireq,1)],['Selected rating (A)',e.bar.a],['Resistance (mOhm/m)',e.r],
+  ['Feed points',e.nf],['Distance to farthest (m)',fx(e.d,1)],['Voltage drop (V)',fx(e.dU,1)],['Voltage drop (%)',fx(e.dUp)],[''],
+  ['MATERIAL','QTY','UNIT']];
+ document.querySelectorAll('#bom3 tr').forEach(tr=>{const td=tr.querySelectorAll('td');
+  if(td.length===3)L.push([td[0].textContent,td[1].textContent,td[2].textContent]);});
+ const txt=L.map(r=>r.join('\t')).join('\n');
+ navigator.clipboard.writeText(txt).then(()=>alert('Copied '+L.length+' rows.'),()=>alert('Copy failed'));
+}
+
+const IDS3=['prj3','bay3','Ltr','tor','ncr','Icr','divf3','volt3','npole','barcap','rmm','kT3','kD3','kcont3',
+ 'dv3','feedmax','nfeed','nISO','ncol','barU','pitchB','pitchE','lampP','compP'];
+
+
+/* ================= bảng giải thích khi rê chuột ================= */
+const TIPS={
+prj:['Dự án|Tên dự án, chỉ dùng để ghi vào file hồ sơ và bản in.|Không tham gia tính toán',
+     'Project|Project name, used only in the saved file and printout.|Not used in any calculation'],
+tag:['Mã cẩu|Mã hiệu cẩu, ví dụ HR15, CRM9.|Không tham gia tính toán',
+     'Crane tag|Crane identifier, e.g. HR15, CRM9.|Not used in any calculation'],
+span:['Khẩu độ / chiều dài chạy|Tổng chiều dài tuyến mà xe con di chuyển, đo dọc theo ray festoon.|Lấy từ bản vẽ GA',
+      'Span / travel length|Total length the crab travels, measured along the festoon rail.|From the GA drawing'],
+dead:['Trừ 2 đầu|Phần hai đầu ray xe con không tới được (chặn cuối, kết cấu). Hành trình thực S = khẩu độ − trừ 2 đầu.|Điển hình 1,5–3 m',
+      'Dead zone, both ends|Rail length the crab cannot reach (end stops, structure). Travel S = span − dead zone.|Typically 1.5–3 m'],
+qty:['Số cẩu áp dụng|Nhân kết quả chiều dài cáp lên cho nhiều cẩu cùng cấu hình.|',
+     'Number of cranes|Multiplies the cable length result for identical cranes.|'],
+hmax:['Độ sâu võng cho phép|Khoảng trống thẳng đứng từ ray festoon xuống vật cản gần nhất. Đây là thông số quyết định chiều dài cáp mỗi vòng.|Điển hình 0,8–2,0 m',
+      'Available loop depth|Vertical clearance from the festoon rail down to the nearest obstruction. This governs the cable length per loop.|Typically 0.8–2.0 m'],
+ctype:['Loại cáp|Cáp tròn treo theo đường dây xích (catenary); cáp dẹt gập hình chữ U nên dùng công thức khác.|',
+       'Cable type|Round cable hangs as a catenary; flat cable folds in a U shape and uses a different model.|'],
+kbend:['Hệ số bán kính uốn k|Bán kính uốn nhỏ nhất R = k × đường kính ngoài cáp. Uốn nhỏ hơn R sẽ giảm tuổi thọ cáp rất nhanh.|Cáp di động thường k = 6–10',
+       'Bend radius factor k|Minimum bend radius R = k × cable OD. Bending tighter than R shortens cable life sharply.|Moving cable usually k = 6–10'],
+ratio:['Hệ số chùng khi giãn s/a|Tỉ số chiều dài cáp một vòng trên bước vòng khi xe giãn hết. Bằng 1,0 là cáp thẳng căng.|Tối thiểu 1,05–1,15',
+       'Slack ratio s/a|Cable length per loop divided by loop pitch when fully extended. At 1.0 the cable is pulled straight.|Minimum 1.05–1.15'],
+bpark:['Bề rộng xe khi gom|Bề rộng chiếm chỗ của một xe cáp khi gom sát nhau. Quyết định chiều dài đoạn gom C = (n+2) × b.|Theo catalogue, 0,10–0,25 m',
+       'Trolley width when parked|Width one cable trolley occupies when packed. Sets the parked length C = (n+2) × b.|Per catalogue, 0.10–0.25 m'],
+saddle:['Cáp vắt qua yên xe|Chiều dài cáp nằm trên mỗi yên xe cáp, được cộng vào chiều dài mỗi sợi.|0,08–0,20 m',
+        'Cable over saddle|Cable length lying on each trolley saddle, added to the length of every run.|0.08–0.20 m'],
+extra:['Tay kéo + chặn cuối|Phần ray dành cho xe kéo, kẹp đầu cố định và chặn cuối, cộng vào chiều dài ray.|0,4–1,0 m',
+       'Towing arm + end stop|Rail length taken by the towing trolley, end clamp and end stop, added to the rail length.|0.4–1.0 m'],
+bkt:['Bước giá đỡ ray|Khoảng cách giữa hai giá treo ray festoon lên dầm.|Điển hình 1,0–1,5 m',
+     'Rail bracket pitch|Spacing of the brackets hanging the festoon rail from the girder.|Typically 1.0–1.5 m'],
+wcar:['Tải cho phép mỗi xe cáp|Khối lượng cáp tối đa một xe được mang, theo catalogue nhà sản xuất.|Kết quả kiểm tra ở khung bên phải',
+      'Allowable load per trolley|Maximum cable weight one trolley may carry, per the manufacturer catalogue.|Checked in the flags on the right'],
+nforce:['Ép số xe cáp|Nhập số xe cáp cố định thay vì để chương trình tự tính. Để 0 = tự tính theo điều kiện chống kéo căng.|',
+        'Force trolley count|Fix the number of trolleys instead of letting the program size it. 0 = auto from the anti-taut condition.|'],
+tailF:['Đuôi cáp đầu cố định|Chiều dài cáp dự trữ tại kẹp cố định để đấu vào hộp nối.|2–5 m',
+       'Tail at fixed end|Spare cable at the end clamp for terminating into the junction box.|2–5 m'],
+tailM:['Đuôi cáp đầu di động|Chiều dài cáp dự trữ tại xe kéo để đấu vào tủ trên xe con.|2–5 m',
+       'Tail at moving end|Spare cable at the towing trolley for terminating into the crab panel.|2–5 m'],
+marg:['Hao hụt / dự phòng|Cộng thêm % vào chiều dài mỗi sợi cho cắt, đi vòng và sai số.|5–10 %',
+      'Waste / allowance|Adds a % to every run for cutting, detours and tolerance.|5–10 %'],
+spare:['Chừa chỗ cáp thêm|Phần tiết diện yên xe để trống cho cáp lắp thêm sau này. Gói này bắt buộc phải có dự phòng.|Yêu cầu hợp đồng',
+       'Reserve for future cables|Saddle cross-section kept free for cables added later. The package requires this margin.|Contract requirement'],
+std:['Tiêu chuẩn cỡ cáp|AWG theo NEC (dự án Bắc Mỹ) hoặc mm² theo IEC.|Gói này dùng AWG / NEC',
+     'Conductor size standard|AWG per NEC (North American project) or mm² per IEC.|This package uses AWG / NEC'],
+volt:['Điện áp động lực|Điện áp cấp cho động cơ, dùng để tính dòng và sụt áp.|Gói này 480 V',
+      'Power voltage|Motor supply voltage, used for current and voltage-drop calculation.|480 V for this package'],
+kT:['Hệ số nhiệt độ môi trường|Hệ số giảm dòng theo nhiệt độ xung quanh so với mốc 30 °C.|40 °C ≈ 0,91',
+    'Ambient temperature factor|Ampacity derating for ambient temperature above the 30 °C base.|40 °C ≈ 0.91'],
+kB:['Hệ số bó cáp|Giảm dòng khi nhiều sợi nằm sát nhau trên yên xe cáp.|6–9 sợi ≈ 0,70',
+    'Bundling factor|Derating when several runs sit together on the trolley saddle.|6–9 runs ≈ 0.70'],
+kD:['Hệ số chu kỳ làm việc|NEC 610.14(A) cho phép nâng dòng theo chu kỳ làm việc của cẩu. Để 1,0 nếu không áp dụng.|',
+    'Duty cycle factor|NEC 610.14(A) allows a higher ampacity based on crane duty. Leave 1.0 if not applied.|'],
+Lext:['Tuyến cáp ngoài festoon|Chiều dài cáp phía ngoài festoon, chỉ để cộng vào tính sụt áp ở mode 1.|Tính chi tiết ở mode 2',
+      'Cable run outside festoon|Length outside the festoon, only added to the mode 1 voltage-drop check.|Calculated in detail in mode 2'],
+dvmax:['Sụt áp cho phép|Giới hạn sụt áp cho riêng đoạn cáp nằm trên festoon.|Thường 3 %',
+       'Allowable voltage drop|Limit for the festoon cable section alone.|Usually 3 %'],
+
+Lspan:['Khẩu độ cầu|Khoảng cách giữa hai tim ray chạy dọc, cũng là chiều dài dầm chính. Dùng để suy ra chiều dài các tuyến cáp trên xe lớn.|Bấm nút bên dưới để lấy từ mode 1',
+       'Bridge span|Distance between the two runway rail centres, i.e. the girder length. All bridge cable routes are derived from it.|Use the button below to take it from mode 1'],
+ppos:['Vị trí tủ điện chính|Vị trí tủ tính từ đầu dầm bên trái, theo % khẩu độ. 50 % là giữa cầu; gói này tủ thường đặt lệch về phía có festoon.|Quyết định chiều dài cả ba tuyến',
+      'Panel position|Position of the main panel from the left girder end, as a % of span. 50 % is mid-bridge; here it usually sits offset towards the festoon side.|Drives the length of all three routes'],
+kcor:['Hệ số hiệu chỉnh dòng|Gộp ba hệ số vào một: nhiệt độ môi trường × nhóm cáp trên máng × chu kỳ làm việc. Dòng cho phép của cáp được nhân với hệ số này.|0,73 ≈ 0,91 × 0,80',
+      'Combined derating factor|Three factors in one: ambient temperature × grouping on the tray × duty cycle. The cable ampacity is multiplied by it.|0.73 ≈ 0.91 × 0.80'],
+dvlim:['Giới hạn từng đoạn|Sụt áp tối đa cho riêng một đoạn ① hoặc ②. Đây cũng là điều kiện để chương trình chọn tiết diện.|NEC khuyến nghị 3 %',
+       'Limit per section|Maximum drop for section ① or ② on its own. It is also the condition used to size the conductor.|NEC recommends 3 %'],
+volti:['Điện áp mạch tín hiệu|Điện áp mạch DC / tín hiệu, dùng tính sụt áp cho cáp instrument.|Gói này 24 V DC',
+       'Signal circuit voltage|DC / signal circuit voltage used for instrument cable drop.|24 V DC for this package'],
+mat:['Vật liệu ruột dẫn|Đồng ρ = 0,0225 Ω·mm²/m; nhôm ρ = 0,036 (ở 75 °C).|Cẩu hầu như luôn dùng đồng',
+     'Conductor material|Copper ρ = 0.0225 Ω·mm²/m; aluminium ρ = 0.036 (at 75 °C).|Cranes almost always use copper'],
+kB2:['Hệ số nhóm cáp trên máng|Giảm dòng khi nhiều cáp đi chung một máng / thang cáp.|4–6 cáp ≈ 0,80',
+     'Grouping factor on tray|Derating when several cables share one tray or ladder.|4–6 cables ≈ 0.80'],
+kcont:['Hệ số dòng liên tục|NEC 430.22: dây nhánh động cơ phải chịu được 125 % dòng đầy tải.|1,25',
+       'Continuous load factor|NEC 430.22: motor branch conductors sized for 125 % of full-load current.|1.25'],
+szmode:['Nguyên tắc chọn tiết diện|"Ampacity + sụt áp" lấy cỡ nhỏ nhất thoả cả hai điều kiện. "Chỉ ampacity" chỉ tra bảng dòng, tuyến dài sẽ báo đỏ sụt áp.|Nên để mặc định',
+        'Conductor selection rule|"Ampacity + voltage drop" takes the smallest size meeting both. "Ampacity only" reads the current table alone, so long routes will fail the drop check.|Keep the default'],
+dvf:['Sụt áp feeder ①|Giới hạn cho đoạn từ nhà điện tới điểm cấp nguồn festoon.|Thường 2 %',
+     'Feeder drop ①|Limit for the run from the E-house to the festoon feed point.|Usually 2 %'],
+dvm:['Sụt áp nhánh ②|Giới hạn cho đoạn từ hộp nối trên cẩu tới từng động cơ.|NEC khuyến nghị 3 %',
+     'Branch drop ②|Limit from the on-board junction box to each motor.|NEC recommends 3 %'],
+dvtot:['Σ tới động cơ xe con|Tổng sụt áp đoạn ① cộng với đoạn festoon lấy từ mode 1, tới đầu cực động cơ trên xe con.|NEC khuyến nghị 5 %',
+       'Σ to the crab motors|Section ① plus the festoon drop from mode 1, down to the crab motor terminals.|NEC recommends 5 %'],
+dvi:['Sụt áp mạch tín hiệu ③|Giới hạn cho mạch 24 V DC cấp cảm biến, tính theo mạch hai dây.|5 %',
+     'Signal drop ③|Limit for the 24 V DC sensor circuits, calculated as a two-wire loop.|5 %'],
+cum:['Cộng dồn đoạn festoon|Cộng sụt áp lớn nhất của đoạn festoon (mode 1) vào tổng ΔU tới động cơ xe con.|Phải chạy mode 1 trước',
+     'Include festoon section|Adds the largest mode 1 festoon drop into the total ΔU down to the crab motors.|Run mode 1 first'],
+slack:['Chừa đấu nối mỗi đầu|Cáp dự trữ tại mỗi đầu để vào tủ, uốn và bấm cosse.|1–2 m mỗi đầu',
+       'Termination slack per end|Spare cable at each end for entering the panel, bending and lugging.|1–2 m per end'],
+allow:['Hao hụt / đi vòng|Cộng % cho đường đi thực tế vòng vèo so với chiều dài lý thuyết.|5–10 %',
+       'Waste / routing allowance|Adds a % for the real routed path versus the straight-line length.|5–10 %'],
+spare2:['Chừa chỗ cáp thêm|% tiết diện máng cáp để trống cho cáp bổ sung sau này.|Yêu cầu hợp đồng',
+        'Reserve for future cables|% of tray cross-section kept free for future cables.|Contract requirement'],
+divf:['Hệ số đồng thời|Dùng khi bấm "Lấy tổng tải xe con từ mode 1": động cơ lớn nhất × 1,25 + các động cơ còn lại × hệ số này.|0,7–0,9',
+      'Diversity factor|Used by "Take total load from mode 1": largest motor × 1.25 + the remaining motors × this factor.|0.7–0.9'],
+Leh:['Nhà điện → chân cẩu|Đoạn máng cáp nằm ngang từ tủ MCC ra tới chân kết cấu nhà xưởng.|Đo trên mặt bằng',
+     'E-house → crane base|Horizontal tray run from the MCC out to the building structure.|Scale from the layout'],
+Lris:['Leo cao / riser|Đoạn cáp đi thẳng đứng lên tới cao trình dầm cẩu.|≈ cao trình T.O.R',
+      'Riser height|Vertical cable run up to the crane girder level.|≈ the T.O.R elevation'],
+Lbeam:['Dọc dầm → điểm cấp festoon|Đoạn chạy dọc dầm tới vị trí đấu vào hệ festoon.|',
+       'Along girder → festoon feed|Run along the girder to the festoon connection point.|'],
+Ldrop:['Hộp nối → động cơ|Chiều dài mặc định điền cho mọi nhánh động cơ khi bấm "Áp dụng tuyến chuẩn".|8–20 m',
+       'Junction box → motor|Default length filled into every motor branch by "Apply standard route".|8–20 m'],
+
+bay3:['Bay|Chọn bay theo hồ sơ gói: H7 (HR12, HR14), H8 (HR15, HR17), H9 (HR18–20), ICS (CRM9, 10, 42), PO (CRM38). Chọn xong sẽ tự điền chiều dài, T.O.R, số cẩu và dòng định mức.|Số liệu từ bảng giá Rev4',
+      'Bay|Bays of this package: H7 (HR12, HR14), H8 (HR15, HR17), H9 (HR18–20), ICS (CRM9, 10, 42), PO (CRM38). Selecting one fills length, T.O.R, crane count and rating.|Figures from the Rev4 estimate'],
+Ltr:['Chiều dài chạy dọc|Chiều dài tuyến thanh dẫn dọc nhà xưởng, bằng hành trình chạy dọc của cẩu.|Từ Attachment #4 / bảng giá',
+     'Long travel length|Length of the conductor bar along the building, equal to the crane long travel.|From Attachment #4 / the estimate'],
+tor:['T.O.R|Top of rail — cao trình mặt ray chạy dọc, tham khảo khi bố trí thanh dẫn và tuyến riser.|',
+     'T.O.R|Top of rail elevation, a reference for locating the bar and the riser route.|'],
+ncr:['Số cẩu trên bay|Số cẩu cùng lấy điện trên một tuyến thanh dẫn.|',
+     'Cranes on the bay|How many cranes draw power from the same bar.|'],
+Icr:['Dòng mỗi cẩu|Dòng tổng của một cẩu tại điểm lấy điện. Bấm nút bên dưới để lấy từ feeder của mode 2.|Cần bảng tải thực tế để chốt',
+     'Current per crane|Total current of one crane at the collector. Use the button below to take it from the mode 2 feeder.|Needs the real load list'],
+divf3:['Hệ số đồng thời|Một cẩu tính đầy tải, các cẩu còn lại nhân hệ số này.|0,6–0,8',
+       'Diversity factor|One crane at full load, the remaining ones multiplied by this factor.|0.6–0.8'],
+npole:['Số cực|Số thanh dẫn của một tuyến: 3 pha + 1 PE.|Gói này 4 cực',
+       'Poles|Conductors in the run: 3 phases + 1 PE.|4 poles for this package'],
+barcap:['Dòng định mức thanh dẫn|Chọn tay theo catalogue, hoặc để auto cho chương trình chọn theo dòng yêu cầu.|500–2500 A',
+        'Bar rated current|Pick from the catalogue, or leave auto to size it from the required current.|500–2500 A'],
+rmm:['Điện trở thanh dẫn|Điện trở một mét thanh dẫn, quyết định sụt áp dọc tuyến. Để 0 sẽ lấy theo bảng tham khảo nội bộ.|Phải thay bằng số VAHLE / Conductix',
+     'Bar resistance|Resistance per metre, which drives the drop along the run. 0 uses the built-in reference table.|Replace with VAHLE / Conductix figures'],
+dv3:['Sụt áp cho phép trên thanh|Giới hạn riêng cho đoạn thanh dẫn, chưa gồm cáp phía trên cẩu.|2–3 %',
+     'Allowable drop along the bar|Limit for the bar section alone, excluding the cabling on the crane.|2–3 %'],
+feedmax:['Khoảng cách cấp nguồn tối đa|Gói yêu cầu bố trí điểm cấp nguồn cách nhau 100–150 m.|Yêu cầu hợp đồng',
+         'Max spacing between feeds|The package requires feed points every 100–150 m.|Contract requirement'],
+nfeed:['Số điểm cấp nguồn|Để 0 để chương trình tự tính theo khoảng cách tối đa ở trên.|',
+       'Feed points|Leave 0 to size it automatically from the maximum spacing above.|'],
+nISO:['Số đoạn cách ly|Gói yêu cầu tách thanh dẫn ở giữa bằng vật liệu cách điện, kèm tủ isolation có aptomat kề bên.|Tối thiểu 1',
+      'Isolation sections|The package requires a mid-span insulated split with an isolation panel and breaker.|Minimum 1'],
+ncol:['Số bộ lấy điện mỗi cẩu|Gói yêu cầu pantograph loại double type.|2 bộ mỗi cẩu',
+      'Collectors per crane|The package requires a double-type pantograph.|2 sets per crane'],
+barU:['Chiều dài 1 đoạn thanh|Chiều dài tiêu chuẩn một cây thanh dẫn, dùng tính số đoạn và số mối nối.|6 m theo bảng giá Rev4',
+      'Bar section length|Standard length of one bar, used for the section and joint count.|6 m per the Rev4 estimate'],
+pitchB:['Bước giá đỡ|Khoảng cách giữa hai giá đỡ thanh dẫn.|1,5 m theo bảng giá Rev4',
+        'Bracket pitch|Spacing between two bar support brackets.|1.5 m per the Rev4 estimate'],
+pitchE:['Bước khe giãn nở|Khoảng cách giữa hai khe giãn nở và điểm cố định, để hấp thụ giãn nở nhiệt.|24 m theo bảng giá Rev4',
+        'Expansion pitch|Spacing of expansion gaps and anchor points absorbing thermal movement.|24 m per the Rev4 estimate'],
+lampP:['Bước đèn báo pha|Khoảng cách lắp đèn báo có điện dọc tuyến.|50 m theo bảng giá Rev4',
+       'Indicator lamp pitch|Spacing of the power indicator lamps along the run.|50 m per the Rev4 estimate'],
+compP:['Bước cáp bù áp|Gói yêu cầu cáp bù áp (voltage-compensating cable) mỗi 100 m.|Yêu cầu hợp đồng',
+       'Compensating cable pitch|The package requires a voltage-compensating cable every 100 m.|Contract requirement']
+};
+TIPS.prj3=TIPS.prj;TIPS.volt3=TIPS.volt;TIPS.kT3=TIPS.kT;TIPS.kD3=TIPS.kD;TIPS.kcont3=TIPS.kcont;
+
+let TIPEL=null,TIPROW=null;
+function hideTip(){if(TIPEL)TIPEL.style.display='none';TIPROW=null;}
+function showTip(row){
+ const el=row.querySelector('input,select');if(!el)return hideTip();
+ const t=TIPS[el.id];if(!t)return hideTip();
+ const p=(LG==='en'?t[1]:t[0]).split('|');
+ TIPEL.innerHTML='<b>'+p[0]+'</b>'+p[1]+(p[2]?'<i>'+p[2]+'</i>':'');
+ TIPEL.style.display='block';TIPEL.style.left='-9999px';TIPEL.style.top='0px';
+ const r=row.getBoundingClientRect(),w=TIPEL.offsetWidth,h=TIPEL.offsetHeight;
+ let x=r.right+16,y=r.top-8;
+ if(x+w>window.innerWidth-12)x=Math.max(12,r.left-w-16);
+ if(y+h>window.innerHeight-12)y=Math.max(12,window.innerHeight-h-12);
+ TIPEL.style.left=x+'px';TIPEL.style.top=y+'px';
+}
+function bindTips(){
+ if(!TIPEL){TIPEL=document.createElement('div');TIPEL.className='tip';document.body.appendChild(TIPEL);}
+ document.querySelectorAll('.row').forEach(r=>{const el=r.querySelector('input,select');
+  if(el&&TIPS[el.id])r.classList.add('hastip');});
+ document.addEventListener('mouseover',e=>{
+  const row=e.target.closest?e.target.closest('.row.hastip'):null;
+  if(row===TIPROW)return;TIPROW=row;row?showTip(row):hideTip();});
+ document.addEventListener('focusin',e=>{
+  const row=e.target.closest?e.target.closest('.row.hastip'):null;
+  if(row){TIPROW=row;showTip(row);}});
+ document.addEventListener('focusout',hideTip);
+ window.addEventListener('scroll',hideTip,true);
+}
+
+
+/* ================= hình chiếu bằng — xe con & động cơ ================= */
+Object.assign(TXT.vi,{
+ d_plan:"Hình chiếu bằng — xe con & động cơ",d_g1:"Dầm đặt hệ festoon",
+ d_g2:"Dầm có cầu thang lên cabin",d_crab:"XE CON",d_leg:"Thông số động cơ trên xe con",
+ d_nomot:"Chưa khai báo động cơ nào ở bảng bên dưới"});
+Object.assign(TXT.en,{
+ d_plan:"Plan view — crab & motors",d_g1:"Girder carrying the festoon",
+ d_g2:"Girder with cabin access stairs",d_crab:"CRAB",d_leg:"Motor data on the crab",
+ d_nomot:"No motor listed in the table below"});
+const MPAL=['#F5C518','#3FBFB4','#C4452F','#7FA5D8','#B87333','#9BBF6A','#D08BC4','#E0E4DE'];
+
+function planSVG(o){
+ const MONO=o.MONO,mx=o.mx,W=o.W,y0=o.yTop,IW=W-2*mx;
+ const R=(o.mres||[]),nm=R.length;
+ const yG1=y0+30,yG2=yG1+104;
+ let g=`<text x="${mx}" y="${y0}" fill="#8C948F" font-family='${MONO}' font-size="11">${T('d_plan')}</text>
+  <line x1="${mx}" y1="${y0+9}" x2="${W-mx}" y2="${y0+9}" stroke="#2B3033"/>`;
+ /* xe đầu cầu */
+ g+=`<rect x="${mx-24}" y="${yG1-12}" width="18" height="${yG2-yG1+38}" fill="#2A2F32" stroke="#4A5155"/>
+  <rect x="${W-mx+6}" y="${yG1-12}" width="18" height="${yG2-yG1+38}" fill="#2A2F32" stroke="#4A5155"/>`;
+ /* hai dầm chính */
+ g+=`<rect x="${mx}" y="${yG1}" width="${IW}" height="15" fill="#3A4145"/>
+  <rect x="${mx}" y="${yG2}" width="${IW}" height="15" fill="#3A4145"/>
+  <text x="${W-mx-4}" y="${yG1-24}" fill="#697069" font-family='${MONO}' font-size="9.5" text-anchor="end">${T('d_g1')}</text>
+  <text x="${W-mx-4}" y="${yG2+29}" fill="#697069" font-family='${MONO}' font-size="9.5" text-anchor="end">${T('d_g2')}</text>`;
+ /* ray festoon + xe cáp nhìn từ trên */
+ g+=`<rect x="${mx}" y="${yG1-19}" width="${IW}" height="5" fill="#2A2F32"/>`;
+ const xs=o.xs,xEnd=xs[xs.length-1];
+ g+=`<line x1="${mx}" y1="${yG1-16.5}" x2="${xEnd}" y2="${yG1-16.5}" stroke="#3FBFB4" stroke-width="2.2"/>`;
+ xs.forEach((x,i)=>{const last=i===xs.length-1;
+  g+=`<rect x="${(x-4.5).toFixed(1)}" y="${yG1-21}" width="9" height="9" fill="${last?'#F5C518':(i===0?'#C9CFCB':'#8C948F')}"/>`;});
+ /* xe con */
+ const cw=Math.min(250,Math.max(180,IW*0.21)),ch=yG2-yG1-20;
+ const xC=Math.min(W-mx-cw/2,Math.max(mx+cw/2,xEnd)),cx=xC-cw/2,cy=yG1+18;
+ g+=`<rect x="${cx}" y="${cy}" width="${cw}" height="${ch}" fill="#22282B" stroke="#F5C518" stroke-width="1.5"/>
+  <text x="${xC}" y="${cy-6}" fill="#F5C518" font-family='${MONO}' font-size="10" text-anchor="middle">${T('d_crab')}</text>`;
+ /* bánh xe con trên hai dầm */
+ [0,1].forEach(k=>{const yy=k?yG2:yG1;[cx+14,cx+cw-22].forEach(xx=>{
+  g+=`<rect x="${xx}" y="${yy-2}" width="8" height="19" fill="#C9CFCB"/>`;});});
+ /* khối động cơ trong xe con */
+ if(nm){
+  const cols=nm<=2?1:2,rows=Math.ceil(nm/cols),pad=8;
+  const bw=(cw-pad*(cols+1))/cols,bh=Math.max(13,Math.min(28,(ch-pad*(rows+1))/rows));
+  R.forEach((r,i)=>{const c=i%cols,q=Math.floor(i/cols),col=MPAL[i%MPAL.length];
+   const bx=cx+pad+c*(bw+pad),by=cy+pad+q*(bh+pad);
+   g+=`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${col}" opacity=".16"/>
+    <rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="3" height="${bh.toFixed(1)}" fill="${col}"/>
+    <text x="${(bx+9).toFixed(1)}" y="${(by+bh/2+4).toFixed(1)}" fill="${col}" font-family='${MONO}' font-size="11">${i+1}</text>
+    <text x="${(bx+bw-5).toFixed(1)}" y="${(by+bh/2+4).toFixed(1)}" fill="#C9CFCB" font-family='${MONO}' font-size="9" text-anchor="end">${fx(r.m.kw,1)} kW${r.m.q>1?' ×'+r.m.q:''}</text>`;});
+  /* cáp từ xe cáp cuối vào xe con */
+  g+=`<line x1="${xEnd}" y1="${yG1-16.5}" x2="${xEnd}" y2="${cy}" stroke="#3FBFB4" stroke-width="2.2" stroke-dasharray="4 3"/>`;
+ }
+ /* bảng thông số */
+ const yh=yG2+52,C=[0,26,250,310,372,444,512,660,724],cx0=i=>mx+C[i];
+ g+=`<text x="${mx}" y="${yh-16}" fill="#8C948F" font-family='${MONO}' font-size="11">${T('d_leg')}</text>`;
+ if(!nm)return {g:g+`<text x="${mx}" y="${yh+4}" fill="#697069" font-family='${MONO}' font-size="10.5">${T('d_nomot')}</text>`,H:yh+30};
+ const hd=[['',0,'s'],[T('t_dev'),1,'s'],['kW',2,'e'],[T('t_q'),3,'e'],['I (A)',4,'e'],[T('t_ir'),5,'e'],[T('t_sz'),6,'s'],['OD',7,'e'],['ΔU %',8,'e']];
+ g+=hd.map(h=>`<text x="${h[2]==='e'?cx0(h[1])+56:cx0(h[1])}" y="${yh}" fill="#697069" font-family='${MONO}' font-size="9.5" text-anchor="${h[2]==='e'?'end':'start'}">${h[0]}</text>`).join('');
+ g+=`<line x1="${mx}" y1="${yh+6}" x2="${W-mx}" y2="${yh+6}" stroke="#2B3033"/>`;
+ R.forEach((r,i)=>{const y=yh+25+i*19,col=MPAL[i%MPAL.length],ex=[];
+  if(r.m.brk)ex.push(T('t_brk'));if(r.m.enc)ex.push(T('t_enc'));
+  g+=`<rect x="${mx}" y="${y-10}" width="14" height="13" fill="${col}" opacity=".85"/>
+   <text x="${mx+7}" y="${y}" fill="#171A1C" font-family='${MONO}' font-size="10" text-anchor="middle">${i+1}</text>
+   <text x="${cx0(1)}" y="${y}" fill="#E4E7E1" font-family='${MONO}' font-size="10.5">${r.m.n}</text>
+   <text x="${cx0(2)+56}" y="${y}" fill="#C9CFCB" font-family='${MONO}' font-size="10.5" text-anchor="end">${fx(r.m.kw,1)}</text>
+   <text x="${cx0(3)+56}" y="${y}" fill="#C9CFCB" font-family='${MONO}' font-size="10.5" text-anchor="end">${r.m.q}</text>
+   <text x="${cx0(4)+56}" y="${y}" fill="#C9CFCB" font-family='${MONO}' font-size="10.5" text-anchor="end">${fx(r.I,1)}</text>
+   <text x="${cx0(5)+56}" y="${y}" fill="#C9CFCB" font-family='${MONO}' font-size="10.5" text-anchor="end">${fx(r.Ir,1)}</text>
+   <text x="${cx0(6)}" y="${y}" fill="#EDEFEA" font-family='${MONO}' font-size="10.5">${r.sz.n}</text>
+   <text x="${cx0(7)+56}" y="${y}" fill="#C9CFCB" font-family='${MONO}' font-size="10.5" text-anchor="end">${r.sz.od}</text>
+   <text x="${cx0(8)+56}" y="${y}" fill="${(r.dv||0)>F('dvmax')?'#E0664F':'#C9CFCB'}" font-family='${MONO}' font-size="10.5" text-anchor="end">${fx(r.dv||0)}</text>
+   <text x="${cx0(8)+70}" y="${y}" fill="#697069" font-family='${MONO}' font-size="9">${ex.join(' · ')}</text>`;});
+ return {g,H:yh+25+nm*19+18};
+}
+
+/* ============ ngôn ngữ ============ */
+function applyLang(){
+ document.documentElement.lang=LG;
+ document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');if(TXT[LG][k])el.textContent=TXT[LG][k];});
+ $('basis').innerHTML=T('basis');$('foot').textContent=T('foot');
+ if($('basis2'))$('basis2').innerHTML=T('basis2');
+ if($('basis3'))$('basis3').innerHTML=T('basis3');
+ if($('hmode'))$('hmode').textContent=MODE?T(MNAME[MODE]):'';
+}
+$('lang').addEventListener('change',()=>{LG=$('lang').value;applyLang();calc();calc2();calc3();});
+function bindAll(){document.querySelectorAll('input,select').forEach(el=>{if(el._bd)return;el._bd=1;
+ el.addEventListener('input',()=>{if(el.id==='lang')return;
+ if(el.closest('#mode2'))calc2();else if(el.closest('#mode3'))calc3();else calc();});});}
+fillBaySel();bindAll();bindTips();
+applyLang();calc();calc2();calc3();setMode(0);
+</script>
+</body>
+</html>
