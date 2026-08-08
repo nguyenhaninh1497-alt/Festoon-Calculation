@@ -91,6 +91,8 @@
   @media(max-width:860px){.pick{grid-template-columns:1fr}}
   .pcard{background:var(--card);border:1px solid var(--rule);border-top:5px solid var(--hazard);padding:18px 20px 20px;cursor:pointer;text-align:left;font-family:var(--body);color:var(--ink)}
   .pcard:hover{background:#FFFDF3;border-color:var(--ink)}
+  .pcard.sel{background:#F1F7F2;border-color:var(--ok);border-top-color:var(--ok)}
+  .pcard.sel h3::after{content:" ✓";color:var(--ok)}
   .pcard .num{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
   .pcard h3{margin:4px 0 6px;font-size:17px;font-weight:700}
   .pcard p{margin:0 0 10px;font-size:12.5px;color:var(--muted);line-height:1.55}
@@ -110,6 +112,7 @@
   td input[type=number]{min-width:56px}
   td select{min-width:94px}
   th{white-space:nowrap}
+  #m3thead th{text-align:center;font-weight:700;color:var(--ink)}
   .row.hastip label{cursor:help}
   .row.hastip label>span:first-child,.row.hastip>label{border-bottom:1px dotted #A9AFA8}
   .tip{position:fixed;display:none;z-index:99;width:310px;background:var(--dark);color:#E4E7E1;
@@ -281,10 +284,63 @@
 </div>
 
 <div id="mode3" class="hide">
-  <div class="card" style="text-align:center;padding:60px 20px">
-    <h2 style="margin-bottom:10px" data-t="m3_wip_h">Đang hoàn thiện</h2>
-    <p class="hint" style="font-size:13px" data-t="m3_wip_p">Công cụ lựa chọn biến tần và thiết bị đóng cắt cho cẩu trục (mặc định Siemens) đang được xây dựng. Vui lòng quay lại sau.</p>
+
+  <div id="m3_picker">
+    <p class="pintro" data-t="m3_pick_p">Chọn cách lấy thông số động cơ để tính chọn biến tần.</p>
+    <div class="pick">
+      <button class="pcard" onclick="m3Start('mode1')">
+        <div class="num" data-t="m3_pick1_tag">LỰA CHỌN 1</div>
+        <h3 data-t="m3_pick1_h">Áp dụng theo động cơ ở Mode 1</h3>
+        <p data-t="m3_pick1_p">Dùng lại bảng động cơ (Hoist, Trolley, Gantry…) đã nhập ở Mode 1, không cần nhập lại.</p>
+      </button>
+      <button class="pcard" onclick="m3Start('new')">
+        <div class="num" data-t="m3_pick2_tag">LỰA CHỌN 2</div>
+        <h3 data-t="m3_pick2_h">Tính với thông số động cơ mới</h3>
+        <p data-t="m3_pick2_p">Nhập một danh sách động cơ riêng, độc lập với Mode 1.</p>
+      </button>
+    </div>
   </div>
+
+  <div id="m3_fam" class="hide">
+    <button class="btn sm" onclick="m3Back()" data-t="b_back3">← Đổi nguồn động cơ</button>
+    <div class="card" style="margin-top:10px">
+      <h2 data-t="m3_famh">Chọn dòng biến tần Siemens</h2>
+      <div class="pick" style="margin-top:8px">
+        <button class="pcard" id="m3_fam_g120" onclick="m3SetFam('g120')">
+          <img src="data:image/webp;base64,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" alt="Siemens SINAMICS G120" style="width:100%;height:160px;object-fit:contain;background:#010028;border:1px solid var(--rule);margin-bottom:4px">
+          <div class="num" data-t="m3_fam1_tag">DÒNG 1</div>
+          <h3>SINAMICS G120</h3>
+          <ul id="m3_fam1_p"></ul>
+        </button>
+        <button class="pcard" id="m3_fam_s120" onclick="m3SetFam('s120')">
+          <img src="data:image/webp;base64,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" alt="Siemens SINAMICS S120" style="width:100%;height:160px;object-fit:contain;background:#001020;border:1px solid var(--rule);margin-bottom:4px">
+          <div class="num" data-t="m3_fam2_tag">DÒNG 2</div>
+          <h3>SINAMICS S120</h3>
+          <ul id="m3_fam2_p"></ul>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="m3_body" class="hide">
+    <button class="btn sm" onclick="m3BackFam()" data-t="b_back4">← Đổi dòng biến tần</button>
+    <div class="card" style="margin-top:10px">
+      <h2 data-t="h_mot3">Danh sách động cơ dùng để chọn biến tần</h2>
+      <div class="scroll"><table id="m3tab"><thead><tr id="m3thead">
+        <th class="l" data-t="t_dev">Thiết bị</th><th>kW</th><th data-t="t_q">SL</th><th></th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="tools" id="m3AddWrap">
+        <button class="btn sm" onclick="addM3Motor()" data-t="b_addm">+ Thêm động cơ</button>
+      </div>
+      <p class="hint" id="m3_vfdNote" style="margin-top:8px" data-t="m3_vfdNote">* Động cơ vượt dải bảng chọn G120 (&gt; 250 kW) — cần dòng biến tần khác (ví dụ S120).</p>
+    </div>
+
+    <div class="card" style="text-align:center;padding:60px 20px">
+      <h2 style="margin-bottom:10px" data-t="m3_wip_h">Đang hoàn thiện</h2>
+      <p class="hint" style="font-size:13px" data-t="m3_wip_p">Công cụ lựa chọn biến tần và thiết bị đóng cắt cho cẩu trục (mặc định Siemens) đang được xây dựng. Vui lòng quay lại sau.</p>
+    </div>
+  </div>
+
 </div>
 
 
@@ -296,6 +352,18 @@
 const TXT={
 vi:{lg_sub:"Đăng nhập để tiếp tục",lg_user:"Tài khoản",lg_pass:"Mật khẩu",lg_err:"Sai tài khoản hoặc mật khẩu",lg_btn:"Đăng nhập",
  m3_wip_h:"Đang hoàn thiện",m3_wip_p:"Công cụ lựa chọn biến tần và thiết bị đóng cắt cho cẩu trục (mặc định Siemens) đang được xây dựng. Vui lòng quay lại sau.",
+ m3_pick_p:"Chọn cách lấy thông số động cơ để tính chọn biến tần.",
+ m3_pick1_tag:"LỰA CHỌN 1",m3_pick1_h:"Áp dụng theo động cơ ở Mode 1",m3_pick1_p:"Dùng lại bảng động cơ (Hoist, Trolley, Gantry…) đã nhập ở Mode 1, không cần nhập lại.",
+ m3_pick2_tag:"LỰA CHỌN 2",m3_pick2_h:"Tính với thông số động cơ mới",m3_pick2_p:"Nhập một danh sách động cơ riêng, độc lập với Mode 1.",
+ b_back3:"← Đổi nguồn động cơ",b_back4:"← Đổi dòng biến tần",h_mot3:"Danh sách động cơ dùng để chọn biến tần",
+ m3_vfd_art:"Mã biến tần",m3_vfd_kw:"P định mức (kW)",m3_vfd_a:"I định mức (A)",m3_vfd_fs:"Frame size",m3_vfd_opt:"Phụ kiện",
+ m3_opt_lr:"Cuộn kháng đầu vào (Line reactor)",m3_opt_br:"Điện trở hãm (Braking resistor)",m3_opt_or:"Cuộn kháng đầu ra (Output reactor)",m3_opt_if:"Cầu chì đầu vào (Input fuse)",
+ m3_opt_fsd:"Cầu dao cách ly cầu chì (Fuse switch disconnector)",
+ m3_vfdNote:"* Động cơ vượt dải bảng chọn G120 (> 250 kW) — cần dòng biến tần khác (ví dụ S120).",
+ m3_noMotors:"Chưa có động cơ nào ở Mode 1 — vào Mode 1 nhập thông số trước, hoặc chọn “Tính với thông số động cơ mới”.",
+ m3_famh:"Chọn dòng biến tần Siemens",
+ m3_fam1_tag:"DÒNG 1",m3_fam1_p:"<li>Dành cho các cẩu cần tối ưu chi phí — động cơ dưới 250 kW.</li><li>Mặc định chọn PM240-2 tích hợp bộ lọc nhiễu Class A.</li><li>Biến tần lấy cao hơn động cơ 1 cấp để đảm bảo biên an toàn.</li><li>Phụ kiện (line reactor, output reactor, điện trở hãm, cầu chì, cầu dao cách ly cầu chì) chọn theo đúng mã khuyến cáo của Siemens.</li>",
+ m3_fam2_tag:"DÒNG 2",m3_fam2_p:"<li>Dòng biến tần cao cấp — phù hợp dải công suất động cơ lớn.</li>",
  h_in:"Thông số đầu vào",g1:"1 · Dự án & cẩu",g2:"2 · Không gian & cáp",g3:"3 · Xe cáp",g4:"2 · Dự phòng",g5:"3 · Điện",
  i_prj:"Dự án",i_tag:"Mã cẩu",i_span:"Khẩu độ / chiều dài chạy",i_kwCol:"kW",i_qtyCol:"SL",i_kwMain:"Hoist – main",i_kwAux:"Hoist – auxiliary",i_kwTr:"Trolley travel",i_kwGa:"Gantry travel",
  i_h:"Độ sâu võng cho phép",i_ct:"Loại cáp",o_rnd:"Tròn",o_flat:"Dẹt",i_k:"Hệ số bán kính uốn k (R = k·d)",i_r:"Hệ số chùng khi giãn s/a",
@@ -342,6 +410,18 @@ vi:{lg_sub:"Đăng nhập để tiếp tục",lg_user:"Tài khoản",lg_pass:"M�
 
 en:{lg_sub:"Sign in to continue",lg_user:"Username",lg_pass:"Password",lg_err:"Incorrect username or password",lg_btn:"Sign in",
  m3_wip_h:"Under construction",m3_wip_p:"The VFD and switching-device selection tool for cranes (default Siemens) is being built. Please check back later.",
+ m3_pick_p:"Choose how to source the motor data used to size the VFDs.",
+ m3_pick1_tag:"OPTION 1",m3_pick1_h:"Use the motors from Mode 1",m3_pick1_p:"Reuse the motor table (Hoist, Trolley, Gantry…) already entered in Mode 1 — no need to re-enter.",
+ m3_pick2_tag:"OPTION 2",m3_pick2_h:"Calculate with new motor data",m3_pick2_p:"Enter a separate motor list, independent from Mode 1.",
+ b_back3:"← Change motor source",b_back4:"← Change VFD line",h_mot3:"Motor list used for VFD sizing",
+ m3_vfd_art:"VFD article no.",m3_vfd_kw:"Rated power (kW)",m3_vfd_a:"Rated current (A)",m3_vfd_fs:"Frame size",m3_vfd_opt:"Accessories",
+ m3_opt_lr:"Line reactor",m3_opt_br:"Braking resistor",m3_opt_or:"Output reactor",m3_opt_if:"Input fuse",
+ m3_opt_fsd:"Fuse switch disconnector",
+ m3_vfdNote:"* Motor exceeds the G120 table range (> 250 kW) — needs a different VFD line (e.g. S120).",
+ m3_noMotors:"No motors found in Mode 1 yet — enter the data in Mode 1 first, or choose “Calculate with new motor data”.",
+ m3_famh:"Choose the Siemens VFD family",
+ m3_fam1_tag:"LINE 1",m3_fam1_p:"<li>Cost-optimized choice for cranes with motors under 250 kW.</li><li>Defaults to the PM240-2 with integrated Class A line filter.</li><li>Sized one frame step above the motor for safety margin.</li><li>Accessories (line reactor, output reactor, braking resistor, fuse, fuse switch disconnector) selected per Siemens' recommended article numbers.</li>",
+ m3_fam2_tag:"LINE 2",m3_fam2_p:"<li>Premium VFD line, built for the large motor power range.</li>",
  h_in:"Input data",g1:"1 · Project & crane",g2:"2 · Space & cable",g3:"3 · Cable trolleys",g4:"2 · Allowances",g5:"3 · Electrical",
  i_prj:"Project",i_tag:"Crane tag",i_span:"Span / travel length",i_kwCol:"kW",i_qtyCol:"Qty",i_kwMain:"Hoist – main",i_kwAux:"Hoist – auxiliary",i_kwTr:"Trolley travel",i_kwGa:"Gantry travel",
  i_h:"Available loop depth",i_ct:"Cable type",o_rnd:"Round",o_flat:"Flat",i_k:"Bend radius factor k (R = k·d)",i_r:"Slack ratio s/a when extended",
@@ -1034,10 +1114,130 @@ function setMode(m){
  $('btnback').classList.toggle('hide',m===0);
  $('hmode').textContent=m?T(MNAME[m]):'';
  if(m===1){calc();calc2();}
- if(m===3)calc3();
+ if(m===3){calc3();m3Render();}
  window.scrollTo(0,0);
 }
 const IDS2=['volti'];
+
+/* ============ Mode 2 (biến tần) — chọn nguồn động cơ + dòng biến tần ============ */
+let M3_SRC=null,M3_MOTORS=[],M3_FAM=null;
+function m3Render(){
+ if(!$('m3_picker'))return;
+ const step=!M3_SRC?'pick':(!M3_FAM?'fam':'body');
+ $('m3_picker').classList.toggle('hide',step!=='pick');
+ $('m3_fam').classList.toggle('hide',step!=='fam');
+ $('m3_body').classList.toggle('hide',step!=='body');
+ if(step==='fam')m3SyncFam();
+ if(step==='body'){renderM3tab();m3SyncFam();}
+}
+function m3SetFam(f){M3_FAM=f;m3Render();}
+function m3SyncFam(){
+ ['g120','s120'].forEach(k=>{const el=$('m3_fam_'+k);if(el)el.classList.toggle('sel',M3_FAM===k);});
+}
+function m3Start(src){
+ if(src==='mode1'){
+  const rows=(window._motorRows||[]).filter(r=>r.kw!==''&&r.q>0);
+  if(!rows.length){alert(T('m3_noMotors'));return;}
+  M3_MOTORS=rows.map(r=>({n:r.name,kw:parseFloat(r.kw)||0,q:parseInt(r.q)||1,locked:true}));
+ }else{
+  M3_MOTORS=[{n:'Động cơ 1',kw:5.5,q:1,locked:false}];
+ }
+ M3_SRC=src;
+ M3_FAM=null;
+ $('m3AddWrap').classList.toggle('hide',src==='mode1');
+ m3Render();
+}
+function m3Back(){M3_SRC=null;M3_FAM=null;m3Render();}
+function m3BackFam(){M3_FAM=null;m3Render();}
+/* SINAMICS G120 — PM240-2 Power Module, standard variant with integrated line filter Class A / Category C2
+   (380...480 V 3AC). Nguồn: catalog Siemens. [kW định mức, A định mức, Frame size, Mã hàng,
+   Cuộn kháng đầu vào (line reactor), Điện trở hãm (braking resistor), Cuộn kháng đầu ra (output reactor),
+   Fuse đầu vào IEC-compliant: dòng A, mã Article No.] */
+const G120_TABLE=[
+[0.55,1.7,'FSA','6SL3210-1PE11-8AL1','6SL3203-0CE13-2AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',10,'3NA3803'],
+[0.75,2.2,'FSA','6SL3210-1PE12-3AL1','6SL3203-0CE13-2AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',10,'3NA3803'],
+[1.1,3.1,'FSA','6SL3210-1PE13-2AL1','6SL3203-0CE21-0AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',16,'3NA3805'],
+[1.5,4.1,'FSA','6SL3210-1PE14-3AL1','6SL3203-0CE21-0AA0','6SL3201-0BE21-0AA0','6SL3202-0AE16-1CA0',16,'3NA3805'],
+[2.2,5.9,'FSA','6SL3210-1PE16-1AL1','6SL3203-0CE21-0AA0','6SL3201-0BE21-0AA0','6SL3202-0AE18-8CA0',16,'3NA3805'],
+[3,7.7,'FSA','6SL3210-1PE18-0AL1','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',16,'3NA3805'],
+[4,10.2,'FSB','6SL3210-1PE21-1AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812'],
+[5.5,13.2,'FSB','6SL3210-1PE21-4AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812'],
+[7.5,18,'FSB','6SL3210-1PE21-8AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812'],
+[11,26,'FSC','6SL3210-1PE22-7AL0','6SL3203-0CE23-8AA0','6SL3201-0BE23-8AA0','6SL3202-0AE23-8CA0',50,'3NA3820'],
+[15,32,'FSC','6SL3210-1PE23-3AL0','6SL3203-0CE23-8AA0','6SL3201-0BE23-8AA0','6SL3202-0AE23-8CA0',50,'3NA3820'],
+[18.5,38,'FSD','6SL3210-1PE23-8AL0','integrated','JJY:023422620001','6SE6400-3TC07-5ED0',63,'3NA3822'],
+[22,45,'FSD','6SL3210-1PE24-5AL0','integrated','JJY:023422620001','6SE6400-3TC07-5ED0',80,'3NA3824'],
+[30,60,'FSD','6SL3210-1PE26-0AL0','integrated','JJY:023424020001','6SE6400-3TC07-5ED0',100,'3NA3830'],
+[37,75,'FSD','6SL3210-1PE27-5AL0','integrated','JJY:023424020001','6SE6400-3TC07-5ED0',100,'3NA3830'],
+[45,90,'FSE','6SL3210-1PE28-8AL0','integrated','JJY:023434020001','6SE6400-3TC14-5FD0',125,'3NA3832'],
+[55,110,'FSE','6SL3210-1PE31-1AL0','integrated','JJY:023434020001','6SE6400-3TC14-5FD0',160,'3NA3836'],
+[75,145,'FSF','6SL3210-1PE31-5AL0','integrated','JJY:023454020001','6SE6400-3TC14-5FD0',200,'3NA3140'],
+[90,178,'FSF','6SL3210-1PE31-8AL0','integrated','JJY:023454020001','6SL3000-2BE32-1AA0',224,'3NA3142'],
+[110,205,'FSF','6SL3210-1PE32-1AL0','integrated','JJY:023464020001','6SL3000-2BE32-1AA0',300,'3NA3250'],
+[132,250,'FSF','6SL3210-1PE32-5AL0','integrated','JJY:023464020001','6SL3000-2BE32-1AA0',315,'3NA3252'],
+[160,302,'FSGX','6SL3210-1PE33-0AL0','6SL3000-0CE33-3AA0','6SL3000-1BE31-3AA0','6SL3000-2BE33-2AA0',355,'3NA3254'],
+[200,370,'FSGX','6SL3210-1PE33-7AL0','6SL3000-0CE35-1AA0','6SL3000-1BE32-5AA0','6SL3000-2BE33-8AA0',400,'3NA3260'],
+[250,477,'FSGX','6SL3210-1PE34-8AL0','6SL3000-0CE35-1AA0','6SL3000-1BE32-5AA0','6SL3000-2BE35-0AA0',630,'3NA3372']
+];
+/* chọn mã có Rated power lớn hơn động cơ 1 cấp (oversize 1 bậc so với cấp vừa đủ) */
+function pickG120(kw){
+ let i=G120_TABLE.findIndex(r=>r[0]>=kw);
+ if(i<0)i=G120_TABLE.length-1; // động cơ vượt dải bảng -> lấy mã lớn nhất
+ else if(i<G120_TABLE.length-1)i+=1; // lên thêm 1 cấp
+ const r=G120_TABLE[i];
+ return {kw:r[0],a:r[1],frame:r[2],art:r[3],lr:r[4],br:r[5],or:r[6],fuseA:r[7],fuseArt:r[8],overRange:G120_TABLE.findIndex(x=>x[0]>=kw)<0};
+}
+/* Cầu dao cách ly cầu chì (fuse switch disconnector) 3NP — dạng NH flat terminals, 3 cực.
+   Chọn size có Iu >= dòng định mức cầu chì đã chọn, đảm bảo phù hợp (fuse fit trong đế). */
+const FUSESW_TABLE=[
+[160,'NH00','3NP1133-1CA10'],[250,'NH1','3NP1143-1DA10'],
+[400,'NH2','3NP1153-1DA10'],[630,'NH3','3NP1163-1DA10']
+];
+function pickFuseSwitch(fuseA){
+ const r=FUSESW_TABLE.find(x=>fuseA<=x[0])||FUSESW_TABLE[FUSESW_TABLE.length-1];
+ return {iu:r[0],size:r[1],art:r[2]};
+}
+function renderM3tab(){
+ if(!$('m3tab'))return;
+ const g=M3_FAM==='g120';
+ if($('m3_vfdNote'))$('m3_vfdNote').classList.toggle('hide',!g);
+ $('m3thead').innerHTML=`<th class="l">${T('t_dev')}</th><th>kW</th><th>${T('t_q')}</th>`+
+  (g?`<th>${T('m3_vfd_art')}</th><th>${T('m3_vfd_kw')}</th><th>${T('m3_vfd_a')}</th><th>${T('m3_vfd_fs')}</th><th>${T('m3_vfd_opt')}</th>`:'')+
+  `<th></th>`;
+ const NCOL=g?9:4;
+ const OPT_LABEL={lr:T('m3_opt_lr'),br:T('m3_opt_br'),or:T('m3_opt_or'),if:T('m3_opt_if')};
+ const OPT_QTY={fsd:1,if:3,lr:1,or:1,br:1}; // số lượng cần cho 1 biến tần (fuse 3 pha cần 3 cái)
+ const subRow=(label,code,aVal,frame,qty)=>`<tr class="subrow"><td class="l" colspan="2">↳ ${label}</td><td>${qty||''}</td><td class="l">${code}</td><td></td><td>${aVal||''}</td><td>${frame||''}</td><td></td><td></td></tr>`;
+ $('m3tab').querySelector('tbody').innerHTML=M3_MOTORS.map((m,i)=>{const l=m.locked;
+  const sel=g?pickG120(m.kw):null;
+  const fsw=sel?pickFuseSwitch(sel.fuseA):null;
+  if(g&&!m.opt)m.opt={lr:false,br:false,or:false,if:false};
+  if(g&&m.opt.if===undefined)m.opt.if=false;
+  let rows=`<tr>
+  <td class="l">${l?m.n:`<input value="${m.n}" onchange="eM3(${i},'n',this.value)">`}</td>
+  <td>${l?fx(m.kw,1):`<input type="number" step="0.5" value="${m.kw}" onchange="eM3(${i},'kw',this.value)">`}</td>
+  <td>${l?m.q:`<input type="number" step="1" min="1" value="${m.q}" onchange="eM3(${i},'q',this.value)">`}</td>`+
+  (g?`<td class="l">${sel.art}${sel.overRange?' *':''}</td><td>${fx(sel.kw,2)}</td><td>${fx(sel.a,1)}</td><td>${sel.frame}</td>
+  <td class="opt">
+   <label title="${T('m3_opt_lr')}"><input type="checkbox" ${m.opt.lr?'checked':''} onchange="toggleM3Opt(${i},'lr',this.checked)">LR</label>
+   <label title="${T('m3_opt_br')}"><input type="checkbox" ${m.opt.br?'checked':''} onchange="toggleM3Opt(${i},'br',this.checked)">BR</label>
+   <label title="${T('m3_opt_or')}"><input type="checkbox" ${m.opt.or?'checked':''} onchange="toggleM3Opt(${i},'or',this.checked)">OR</label>
+   <label title="${T('m3_opt_if')}"><input type="checkbox" ${m.opt.if?'checked':''} onchange="toggleM3Opt(${i},'if',this.checked)">IF</label>
+  </td>`:'')+
+  `<td style="text-align:center">${l?'':`<button class="btn sm" onclick="delM3(${i})">×</button>`}</td></tr>`;
+  if(g&&m.opt.if){
+   rows+=subRow(T('m3_opt_fsd'),fsw.art,fx(fsw.iu,0),fsw.size,OPT_QTY.fsd*m.q);
+   rows+=subRow(OPT_LABEL.if,sel.fuseArt,fx(sel.fuseA,0),fsw.size,OPT_QTY.if*m.q);
+  }
+  if(g&&m.opt.lr)rows+=subRow(OPT_LABEL.lr,sel.lr,'','',OPT_QTY.lr*m.q);
+  if(g&&m.opt.or)rows+=subRow(OPT_LABEL.or,sel.or,'','',OPT_QTY.or*m.q);
+  if(g&&m.opt.br)rows+=subRow(OPT_LABEL.br,sel.br,'','',OPT_QTY.br*m.q);
+  return rows;}).join('');
+}
+function eM3(i,k,v){M3_MOTORS[i][k]=(k==='n')?v:(parseFloat(v)||0);renderM3tab();}
+function addM3Motor(){M3_MOTORS.push({n:'Động cơ mới',kw:5.5,q:1,locked:false,opt:{lr:false,br:false,or:false,if:false}});renderM3tab();}
+function delM3(i){M3_MOTORS.splice(i,1);renderM3tab();}
+function toggleM3Opt(i,k,v){if(!M3_MOTORS[i].opt)M3_MOTORS[i].opt={lr:false,br:false,or:false,if:false};M3_MOTORS[i].opt[k]=v;renderM3tab();}
 
 
 /* ================= CHẾ ĐỘ 3 — thanh dẫn điện & CHẾ ĐỘ 4 — yêu cầu gói ================= */
@@ -1502,10 +1702,12 @@ function applyLang(){
  if($('basis'))$('basis').innerHTML=T('basis');
  if($('basis2'))$('basis2').innerHTML=T('basis2');
  if($('basis3'))$('basis3').innerHTML=T('basis3');
+ if($('m3_fam1_p'))$('m3_fam1_p').innerHTML=T('m3_fam1_p');
+ if($('m3_fam2_p'))$('m3_fam2_p').innerHTML=T('m3_fam2_p');
  if($('hmode'))$('hmode').textContent=MODE?T(MNAME[MODE]):'';
  updateFlag();
 }
-$('lang').addEventListener('change',()=>{LG=$('lang').value;applyLang();calc();calc2();calc3();});
+$('lang').addEventListener('change',()=>{LG=$('lang').value;applyLang();calc();calc2();calc3();if(M3_SRC)renderM3tab();});
 function bindAll(){document.querySelectorAll('input,select').forEach(el=>{if(el._bd)return;el._bd=1;
  el.addEventListener('input',()=>{if(el.id==='lang')return;
  if(el.closest('#mode2'))calc2();else if(el.closest('#mode3'))calc3();else calc();});});}
