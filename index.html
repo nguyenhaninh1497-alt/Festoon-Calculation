@@ -357,12 +357,16 @@ vi:{lg_sub:"Đăng nhập để tiếp tục",lg_user:"Tài khoản",lg_pass:"M�
  m3_pick2_tag:"LỰA CHỌN 2",m3_pick2_h:"Tính với thông số động cơ mới",m3_pick2_p:"Nhập một danh sách động cơ riêng, độc lập với Mode 1.",
  b_back3:"← Đổi nguồn động cơ",b_back4:"← Đổi dòng biến tần",h_mot3:"Danh sách động cơ dùng để chọn biến tần",
  m3_vfd_art:"Mã biến tần",m3_vfd_kw:"P định mức (kW)",m3_vfd_a:"I định mức (A)",m3_vfd_fs:"Frame size",m3_vfd_opt:"Phụ kiện",
- m3_opt_lr:"Cuộn kháng đầu vào (Line reactor)",m3_opt_br:"Điện trở hãm (Braking resistor)",m3_opt_or:"Cuộn kháng đầu ra (Output reactor)",m3_opt_if:"Cầu chì đầu vào (Input fuse)",
- m3_opt_fsd:"Cầu dao cách ly cầu chì (Fuse switch disconnector)",
+ m3_opt_lr:"Line reactor",m3_opt_br:"Braking resistor",m3_opt_or:"Output reactor",m3_opt_if:"Input fuse",
+ m3_opt_bop:"Basic Operator Panel (BOP)",
+ m3_opt_cu:"Control Unit — mặc định CU250 (6SL3246-0BA22-1FA0); tick CU240 để đổi sang CU240 (6SL3244-0BB13-1PA1)",
+ m3_opt_lfa:"Bộ lọc nhiễu tích hợp Class A (Integrated line filter Class A) — bật: chọn mã with integrated line filter Class A; tắt: chọn mã without integrated line filter",
+ m3_lfa_forced:"dải 160-250kW chỉ có mã tích hợp bộ lọc (Category C2), không có biến thể without filter",
+ m3_opt_fsd:"Fuse switch disconnector",
  m3_vfdNote:"* Động cơ vượt dải bảng chọn G120 (> 250 kW) — cần dòng biến tần khác (ví dụ S120).",
  m3_noMotors:"Chưa có động cơ nào ở Mode 1 — vào Mode 1 nhập thông số trước, hoặc chọn “Tính với thông số động cơ mới”.",
  m3_famh:"Chọn dòng biến tần Siemens",
- m3_fam1_tag:"DÒNG 1",m3_fam1_p:"<li>Dành cho các cẩu cần tối ưu chi phí — động cơ dưới 250 kW.</li><li>Mặc định chọn PM240-2 tích hợp bộ lọc nhiễu Class A.</li><li>Biến tần lấy cao hơn động cơ 1 cấp để đảm bảo biên an toàn.</li><li>Phụ kiện (line reactor, output reactor, điện trở hãm, cầu chì, cầu dao cách ly cầu chì) chọn theo đúng mã khuyến cáo của Siemens.</li>",
+ m3_fam1_tag:"DÒNG 1",m3_fam1_p:"<li>Dành cho các cẩu cần tối ưu chi phí — động cơ dưới 250 kW.</li><li>Mặc định chọn PM240-2 tích hợp bộ lọc nhiễu Class A (có thể bỏ chọn tuỳ chọn LFA để lấy mã without integrated line filter).</li><li>Mặc định chọn Control Unit CU250, phù hợp với các ứng dụng điều khiển vị trí chính xác (có thể tick tuỳ chọn CU240 để đổi sang CU240).</li><li>Biến tần lấy cao hơn động cơ 1 cấp để đảm bảo biên an toàn.</li><li>Phụ kiện (line reactor, output reactor, điện trở hãm, cầu chì, cầu dao cách ly cầu chì) chọn theo đúng mã khuyến cáo của Siemens.</li>",
  m3_fam2_tag:"DÒNG 2",m3_fam2_p:"<li>Dòng biến tần cao cấp — phù hợp dải công suất động cơ lớn.</li>",
  h_in:"Thông số đầu vào",g1:"1 · Dự án & cẩu",g2:"2 · Không gian & cáp",g3:"3 · Xe cáp",g4:"2 · Dự phòng",g5:"3 · Điện",
  i_prj:"Dự án",i_tag:"Mã cẩu",i_span:"Khẩu độ / chiều dài chạy",i_kwCol:"kW",i_qtyCol:"SL",i_kwMain:"Hoist – main",i_kwAux:"Hoist – auxiliary",i_kwTr:"Trolley travel",i_kwGa:"Gantry travel",
@@ -416,11 +420,15 @@ en:{lg_sub:"Sign in to continue",lg_user:"Username",lg_pass:"Password",lg_err:"I
  b_back3:"← Change motor source",b_back4:"← Change VFD line",h_mot3:"Motor list used for VFD sizing",
  m3_vfd_art:"VFD article no.",m3_vfd_kw:"Rated power (kW)",m3_vfd_a:"Rated current (A)",m3_vfd_fs:"Frame size",m3_vfd_opt:"Accessories",
  m3_opt_lr:"Line reactor",m3_opt_br:"Braking resistor",m3_opt_or:"Output reactor",m3_opt_if:"Input fuse",
+ m3_opt_bop:"Basic Operator Panel (BOP)",
+ m3_opt_cu:"Control Unit — default CU250 (6SL3246-0BA22-1FA0); tick CU240 to switch to CU240 (6SL3244-0BB13-1PA1)",
+ m3_opt_lfa:"Integrated line filter Class A — checked: use the with integrated line filter Class A part number; unchecked: use the without integrated line filter part number",
+ m3_lfa_forced:"the 160-250kW range only has the integrated-filter part number (Category C2), no without-filter variant",
  m3_opt_fsd:"Fuse switch disconnector",
  m3_vfdNote:"* Motor exceeds the G120 table range (> 250 kW) — needs a different VFD line (e.g. S120).",
  m3_noMotors:"No motors found in Mode 1 yet — enter the data in Mode 1 first, or choose “Calculate with new motor data”.",
  m3_famh:"Choose the Siemens VFD family",
- m3_fam1_tag:"LINE 1",m3_fam1_p:"<li>Cost-optimized choice for cranes with motors under 250 kW.</li><li>Defaults to the PM240-2 with integrated Class A line filter.</li><li>Sized one frame step above the motor for safety margin.</li><li>Accessories (line reactor, output reactor, braking resistor, fuse, fuse switch disconnector) selected per Siemens' recommended article numbers.</li>",
+ m3_fam1_tag:"LINE 1",m3_fam1_p:"<li>Cost-optimized choice for cranes with motors under 250 kW.</li><li>Defaults to the PM240-2 with integrated Class A line filter (untick the LFA option to use the without integrated line filter part number instead).</li><li>Defaults to the CU250 Control Unit, suited to applications needing precise position control (tick the CU240 option to switch to CU240 instead).</li><li>Sized one frame step above the motor for safety margin.</li><li>Accessories (line reactor, output reactor, braking resistor, fuse, fuse switch disconnector) selected per Siemens' recommended article numbers.</li>",
  m3_fam2_tag:"LINE 2",m3_fam2_p:"<li>Premium VFD line, built for the large motor power range.</li>",
  h_in:"Input data",g1:"1 · Project & crane",g2:"2 · Space & cable",g3:"3 · Cable trolleys",g4:"2 · Allowances",g5:"3 · Electrical",
  i_prj:"Project",i_tag:"Crane tag",i_span:"Span / travel length",i_kwCol:"kW",i_qtyCol:"Qty",i_kwMain:"Hoist – main",i_kwAux:"Hoist – auxiliary",i_kwTr:"Trolley travel",i_kwGa:"Gantry travel",
@@ -629,6 +637,7 @@ function calc(){
  drawIt({n,a,s,b,S,Lrail,type,Rmin,mres});
  window._e={n,a,s,S,Lrail,Lper,totLen,totW,qty,park,ext,Rmin,C,nbkt,nCore,dmax,list,mres,wPerCar};
  if($('t1'))calc2();
+ if(M3_SRC==='mode1')renderM3tab();
 }
 
 /* ============ drawing ============ */
@@ -1134,58 +1143,118 @@ function m3SetFam(f){M3_FAM=f;m3Render();}
 function m3SyncFam(){
  ['g120','s120'].forEach(k=>{const el=$('m3_fam_'+k);if(el)el.classList.toggle('sel',M3_FAM===k);});
 }
+/* Gộp các động cơ cùng hệ (trolley / gantry) thành 1 dòng — chọn chung 1 biến tần theo tổng công suất.
+   Nhãn kW hiển thị dạng "SL x kW/con" khi các động cơ trong hệ bằng công suất nhau (trường hợp phổ biến khi
+   sinh từ Mode 1), ngược lại liệt kê từng cụm "SLxkW + SLxkW". */
+function groupKwLabel(rows){
+ const kws=rows.map(r=>r.kw);
+ const count=rows.reduce((s,r)=>s+(r.q||1),0);
+ const uniform=kws.every(k=>Math.abs(k-kws[0])<1e-6);
+ if(uniform)return{label:`${count} x ${fx(kws[0],1)}`,totalKw:kws[0]*count};
+ const total=rows.reduce((s,r)=>s+r.kw*(r.q||1),0);
+ return{label:rows.map(r=>`${(r.q||1)>1?(r.q||1)+'x':''}${fx(r.kw,1)}`).join(' + '),totalKw:total};
+}
+function groupName(rows,base){
+ if(rows.length<=1)return rows[0]?rows[0].n:base;
+ const nums=rows.map(r=>{const m=String(r.n).match(/(\d+)\s*$/);return m?m[1]:null;});
+ if(nums.every(x=>x!==null))return base+' '+nums.join(' & ');
+ return rows.map(r=>r.n).join(' & ');
+}
+/* Lưu trạng thái tick LR/BR/OR/IF/LFA theo tên thiết bị, để khi dữ liệu Mode 1 thay đổi (kW, SL…)
+   và bảng Mode 2 tự build lại, các lựa chọn phụ kiện người dùng đã tick không bị mất. */
+let M3_OPTS_MODE1={};
+function m3OptFor(name){
+ if(!M3_OPTS_MODE1[name])M3_OPTS_MODE1[name]={lr:false,br:false,or:false,if:false,lfa:true,bop:false,cu240:false};
+ return M3_OPTS_MODE1[name];
+}
+/* Luôn đọc trực tiếp từ mảng "motors" (Hoist main/aux/Trolley) và "s2" (Gantry) đang sống của Mode 1,
+   để khi người dùng đổi kW/SL ở Mode 1, bảng chọn biến tần ở Mode 2 tự cập nhật theo — không cần bấm lại
+   "Áp dụng theo động cơ ở Mode 1". */
+function m3BuildMode1List(){
+ const mainRows=motors.filter(m=>!m.fixed&&m.system==='main'&&(m.q||1)>0);
+ const auxRows=motors.filter(m=>!m.fixed&&m.system==='aux'&&(m.q||1)>0);
+ const trolleyRows=motors.filter(m=>!m.fixed&&m.system==='trolley'&&(m.q||1)>0);
+ const customRows=motors.filter(m=>!m.fixed&&!m.system&&(m.q||1)>0);
+ const gantryRows=(typeof s2!=='undefined'?s2:[]).filter(r=>r.system==='gantry'&&(r.q||1)>0);
+
+ const list=[];
+ mainRows.forEach(m=>list.push({n:m.n,kw:m.kw,q:m.q||1}));
+ auxRows.forEach(m=>list.push({n:m.n,kw:m.kw,q:m.q||1}));
+ if(trolleyRows.length){
+  const g=groupKwLabel(trolleyRows);
+  list.push({n:groupName(trolleyRows,SYS_DEF.trolley.base),kw:g.totalKw,q:1,kwLabel:g.label});
+ }
+ if(gantryRows.length){
+  const g=groupKwLabel(gantryRows);
+  list.push({n:groupName(gantryRows,SYS_DEF.gantry.base),kw:g.totalKw,q:1,kwLabel:g.label});
+ }
+ customRows.forEach(m=>list.push({n:m.n,kw:m.kw,q:m.q||1}));
+ return list.map(r=>({n:r.n,kw:r.kw,q:r.q,kwLabel:r.kwLabel,locked:true,opt:m3OptFor(r.n)}));
+}
+function m3RefreshFromMode1(){
+ if(M3_SRC!=='mode1')return;
+ M3_MOTORS=m3BuildMode1List();
+}
 function m3Start(src){
  if(src==='mode1'){
-  const rows=(window._motorRows||[]).filter(r=>r.kw!==''&&r.q>0);
-  if(!rows.length){alert(T('m3_noMotors'));return;}
-  M3_MOTORS=rows.map(r=>({n:r.name,kw:parseFloat(r.kw)||0,q:parseInt(r.q)||1,locked:true}));
+  M3_SRC='mode1';
+  M3_MOTORS=m3BuildMode1List();
+  if(!M3_MOTORS.length){alert(T('m3_noMotors'));M3_SRC=null;return;}
  }else{
-  M3_MOTORS=[{n:'Động cơ 1',kw:5.5,q:1,locked:false}];
+  M3_MOTORS=[{n:'Động cơ 1',kw:5.5,q:1,locked:false,opt:{lr:false,br:false,or:false,if:false,lfa:true,bop:false,cu240:false}}];
+  M3_SRC=src;
  }
- M3_SRC=src;
  M3_FAM=null;
  $('m3AddWrap').classList.toggle('hide',src==='mode1');
  m3Render();
 }
 function m3Back(){M3_SRC=null;M3_FAM=null;m3Render();}
 function m3BackFam(){M3_FAM=null;m3Render();}
-/* SINAMICS G120 — PM240-2 Power Module, standard variant with integrated line filter Class A / Category C2
-   (380...480 V 3AC). Nguồn: catalog Siemens. [kW định mức, A định mức, Frame size, Mã hàng,
+/* SINAMICS G120 — PM240-2 Power Module (380...480 V 3AC). Nguồn: catalog Siemens.
+   [kW định mức, A định mức, Frame size, Mã hàng — with integrated line filter Class A (0.55-132kW) / Category C2 (160-250kW),
    Cuộn kháng đầu vào (line reactor), Điện trở hãm (braking resistor), Cuộn kháng đầu ra (output reactor),
-   Fuse đầu vào IEC-compliant: dòng A, mã Article No.] */
+   Fuse đầu vào IEC-compliant: dòng A, mã Article No.,
+   Mã hàng — without integrated line filter (0.55-132kW). Với dải 160-250kW không có biến thể "without filter"
+   (chỉ có Category C2/C3), nên để null — luôn giữ nguyên mã có tích hợp bộ lọc.] */
 const G120_TABLE=[
-[0.55,1.7,'FSA','6SL3210-1PE11-8AL1','6SL3203-0CE13-2AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',10,'3NA3803'],
-[0.75,2.2,'FSA','6SL3210-1PE12-3AL1','6SL3203-0CE13-2AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',10,'3NA3803'],
-[1.1,3.1,'FSA','6SL3210-1PE13-2AL1','6SL3203-0CE21-0AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',16,'3NA3805'],
-[1.5,4.1,'FSA','6SL3210-1PE14-3AL1','6SL3203-0CE21-0AA0','6SL3201-0BE21-0AA0','6SL3202-0AE16-1CA0',16,'3NA3805'],
-[2.2,5.9,'FSA','6SL3210-1PE16-1AL1','6SL3203-0CE21-0AA0','6SL3201-0BE21-0AA0','6SL3202-0AE18-8CA0',16,'3NA3805'],
-[3,7.7,'FSA','6SL3210-1PE18-0AL1','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',16,'3NA3805'],
-[4,10.2,'FSB','6SL3210-1PE21-1AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812'],
-[5.5,13.2,'FSB','6SL3210-1PE21-4AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812'],
-[7.5,18,'FSB','6SL3210-1PE21-8AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812'],
-[11,26,'FSC','6SL3210-1PE22-7AL0','6SL3203-0CE23-8AA0','6SL3201-0BE23-8AA0','6SL3202-0AE23-8CA0',50,'3NA3820'],
-[15,32,'FSC','6SL3210-1PE23-3AL0','6SL3203-0CE23-8AA0','6SL3201-0BE23-8AA0','6SL3202-0AE23-8CA0',50,'3NA3820'],
-[18.5,38,'FSD','6SL3210-1PE23-8AL0','integrated','JJY:023422620001','6SE6400-3TC07-5ED0',63,'3NA3822'],
-[22,45,'FSD','6SL3210-1PE24-5AL0','integrated','JJY:023422620001','6SE6400-3TC07-5ED0',80,'3NA3824'],
-[30,60,'FSD','6SL3210-1PE26-0AL0','integrated','JJY:023424020001','6SE6400-3TC07-5ED0',100,'3NA3830'],
-[37,75,'FSD','6SL3210-1PE27-5AL0','integrated','JJY:023424020001','6SE6400-3TC07-5ED0',100,'3NA3830'],
-[45,90,'FSE','6SL3210-1PE28-8AL0','integrated','JJY:023434020001','6SE6400-3TC14-5FD0',125,'3NA3832'],
-[55,110,'FSE','6SL3210-1PE31-1AL0','integrated','JJY:023434020001','6SE6400-3TC14-5FD0',160,'3NA3836'],
-[75,145,'FSF','6SL3210-1PE31-5AL0','integrated','JJY:023454020001','6SE6400-3TC14-5FD0',200,'3NA3140'],
-[90,178,'FSF','6SL3210-1PE31-8AL0','integrated','JJY:023454020001','6SL3000-2BE32-1AA0',224,'3NA3142'],
-[110,205,'FSF','6SL3210-1PE32-1AL0','integrated','JJY:023464020001','6SL3000-2BE32-1AA0',300,'3NA3250'],
-[132,250,'FSF','6SL3210-1PE32-5AL0','integrated','JJY:023464020001','6SL3000-2BE32-1AA0',315,'3NA3252'],
-[160,302,'FSGX','6SL3210-1PE33-0AL0','6SL3000-0CE33-3AA0','6SL3000-1BE31-3AA0','6SL3000-2BE33-2AA0',355,'3NA3254'],
-[200,370,'FSGX','6SL3210-1PE33-7AL0','6SL3000-0CE35-1AA0','6SL3000-1BE32-5AA0','6SL3000-2BE33-8AA0',400,'3NA3260'],
-[250,477,'FSGX','6SL3210-1PE34-8AL0','6SL3000-0CE35-1AA0','6SL3000-1BE32-5AA0','6SL3000-2BE35-0AA0',630,'3NA3372']
+[0.55,1.7,'FSA','6SL3210-1PE11-8AL1','6SL3203-0CE13-2AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',10,'3NA3803','6SL3210-1PE11-8UL1'],
+[0.75,2.2,'FSA','6SL3210-1PE12-3AL1','6SL3203-0CE13-2AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',10,'3NA3803','6SL3210-1PE12-3UL1'],
+[1.1,3.1,'FSA','6SL3210-1PE13-2AL1','6SL3203-0CE21-0AA0','6SL3201-0BE14-3AA0','6SL3202-0AE16-1CA0',16,'3NA3805','6SL3210-1PE13-2UL1'],
+[1.5,4.1,'FSA','6SL3210-1PE14-3AL1','6SL3203-0CE21-0AA0','6SL3201-0BE21-0AA0','6SL3202-0AE16-1CA0',16,'3NA3805','6SL3210-1PE14-3UL1'],
+[2.2,5.9,'FSA','6SL3210-1PE16-1AL1','6SL3203-0CE21-0AA0','6SL3201-0BE21-0AA0','6SL3202-0AE18-8CA0',16,'3NA3805','6SL3210-1PE16-1UL1'],
+[3,7.7,'FSA','6SL3210-1PE18-0AL1','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',16,'3NA3805','6SL3210-1PE18-0UL1'],
+[4,10.2,'FSB','6SL3210-1PE21-1AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812','6SL3210-1PE21-1UL0'],
+[5.5,13.2,'FSB','6SL3210-1PE21-4AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812','6SL3210-1PE21-4UL0'],
+[7.5,18,'FSB','6SL3210-1PE21-8AL0','6SL3203-0CE21-8AA0','6SL3201-0BE21-8AA0','6SL3202-0AE21-8CA0',32,'3NA3812','6SL3210-1PE21-8UL0'],
+[11,26,'FSC','6SL3210-1PE22-7AL0','6SL3203-0CE23-8AA0','6SL3201-0BE23-8AA0','6SL3202-0AE23-8CA0',50,'3NA3820','6SL3210-1PE22-7UL0'],
+[15,32,'FSC','6SL3210-1PE23-3AL0','6SL3203-0CE23-8AA0','6SL3201-0BE23-8AA0','6SL3202-0AE23-8CA0',50,'3NA3820','6SL3210-1PE23-3UL0'],
+[18.5,38,'FSD','6SL3210-1PE23-8AL0','integrated','JJY:023422620001','6SE6400-3TC07-5ED0',63,'3NA3822','6SL3210-1PE23-8UL0'],
+[22,45,'FSD','6SL3210-1PE24-5AL0','integrated','JJY:023422620001','6SE6400-3TC07-5ED0',80,'3NA3824','6SL3210-1PE24-5UL0'],
+[30,60,'FSD','6SL3210-1PE26-0AL0','integrated','JJY:023424020001','6SE6400-3TC07-5ED0',100,'3NA3830','6SL3210-1PE26-0UL0'],
+[37,75,'FSD','6SL3210-1PE27-5AL0','integrated','JJY:023424020001','6SE6400-3TC07-5ED0',100,'3NA3830','6SL3210-1PE27-5UL0'],
+[45,90,'FSE','6SL3210-1PE28-8AL0','integrated','JJY:023434020001','6SE6400-3TC14-5FD0',125,'3NA3832','6SL3210-1PE28-8UL0'],
+[55,110,'FSE','6SL3210-1PE31-1AL0','integrated','JJY:023434020001','6SE6400-3TC14-5FD0',160,'3NA3836','6SL3210-1PE31-1UL0'],
+[75,145,'FSF','6SL3210-1PE31-5AL0','integrated','JJY:023454020001','6SE6400-3TC14-5FD0',200,'3NA3140','6SL3210-1PE31-5UL0'],
+[90,178,'FSF','6SL3210-1PE31-8AL0','integrated','JJY:023454020001','6SL3000-2BE32-1AA0',224,'3NA3142','6SL3210-1PE31-8UL0'],
+[110,205,'FSF','6SL3210-1PE32-1AL0','integrated','JJY:023464020001','6SL3000-2BE32-1AA0',300,'3NA3250','6SL3210-1PE32-1UL0'],
+[132,250,'FSF','6SL3210-1PE32-5AL0','integrated','JJY:023464020001','6SL3000-2BE32-1AA0',315,'3NA3252','6SL3210-1PE32-5UL0'],
+[160,302,'FSGX','6SL3210-1PE33-0AL0','6SL3000-0CE33-3AA0','6SL3000-1BE31-3AA0','6SL3000-2BE33-2AA0',355,'3NA3254',null],
+[200,370,'FSGX','6SL3210-1PE33-7AL0','6SL3000-0CE35-1AA0','6SL3000-1BE32-5AA0','6SL3000-2BE33-8AA0',400,'3NA3260',null],
+[250,477,'FSGX','6SL3210-1PE34-8AL0','6SL3000-0CE35-1AA0','6SL3000-1BE32-5AA0','6SL3000-2BE35-0AA0',630,'3NA3372',null]
 ];
-/* chọn mã có Rated power lớn hơn động cơ 1 cấp (oversize 1 bậc so với cấp vừa đủ) */
-function pickG120(kw){
+/* chọn mã có Rated power lớn hơn động cơ 1 cấp (oversize 1 bậc so với cấp vừa đủ).
+   withFilterA=true (mặc định) -> mã có tích hợp bộ lọc nhiễu Class A (r[3]).
+   withFilterA=false -> mã without integrated line filter (r[9]), nếu có; nếu dải công suất không có
+   biến thể "without filter" (160-250kW) thì vẫn giữ nguyên mã có filter. */
+function pickG120(kw,withFilterA){
+ if(withFilterA===undefined)withFilterA=true;
  let i=G120_TABLE.findIndex(r=>r[0]>=kw);
  if(i<0)i=G120_TABLE.length-1; // động cơ vượt dải bảng -> lấy mã lớn nhất
  else if(i<G120_TABLE.length-1)i+=1; // lên thêm 1 cấp
  const r=G120_TABLE[i];
- return {kw:r[0],a:r[1],frame:r[2],art:r[3],lr:r[4],br:r[5],or:r[6],fuseA:r[7],fuseArt:r[8],overRange:G120_TABLE.findIndex(x=>x[0]>=kw)<0};
+ const hasNoFilterVariant=!!r[9];
+ const art=(withFilterA||!hasNoFilterVariant)?r[3]:r[9];
+ return {kw:r[0],a:r[1],frame:r[2],art:art,artFilterA:r[3],artNoFilter:r[9],hasNoFilterVariant:hasNoFilterVariant,lr:r[4],br:r[5],or:r[6],fuseA:r[7],fuseArt:r[8],overRange:G120_TABLE.findIndex(x=>x[0]>=kw)<0};
 }
 /* Cầu dao cách ly cầu chì (fuse switch disconnector) 3NP — dạng NH flat terminals, 3 cực.
    Chọn size có Iu >= dòng định mức cầu chì đã chọn, đảm bảo phù hợp (fuse fit trong đế). */
@@ -1199,32 +1268,46 @@ function pickFuseSwitch(fuseA){
 }
 function renderM3tab(){
  if(!$('m3tab'))return;
+ m3RefreshFromMode1();
  const g=M3_FAM==='g120';
  if($('m3_vfdNote'))$('m3_vfdNote').classList.toggle('hide',!g);
  $('m3thead').innerHTML=`<th class="l">${T('t_dev')}</th><th>kW</th><th>${T('t_q')}</th>`+
   (g?`<th>${T('m3_vfd_art')}</th><th>${T('m3_vfd_kw')}</th><th>${T('m3_vfd_a')}</th><th>${T('m3_vfd_fs')}</th><th>${T('m3_vfd_opt')}</th>`:'')+
   `<th></th>`;
  const NCOL=g?9:4;
- const OPT_LABEL={lr:T('m3_opt_lr'),br:T('m3_opt_br'),or:T('m3_opt_or'),if:T('m3_opt_if')};
- const OPT_QTY={fsd:1,if:3,lr:1,or:1,br:1}; // số lượng cần cho 1 biến tần (fuse 3 pha cần 3 cái)
- const subRow=(label,code,aVal,frame,qty)=>`<tr class="subrow"><td class="l" colspan="2">↳ ${label}</td><td>${qty||''}</td><td class="l">${code}</td><td></td><td>${aVal||''}</td><td>${frame||''}</td><td></td><td></td></tr>`;
+ const OPT_LABEL={lr:T('m3_opt_lr'),br:T('m3_opt_br'),or:T('m3_opt_or'),if:T('m3_opt_if'),lfa:T('m3_opt_lfa'),bop:T('m3_opt_bop')};
+ const OPT_QTY={fsd:1,if:3,lr:1,or:1,br:1,bop:1,cu:1}; // số lượng cần cho 1 biến tần (fuse 3 pha cần 3 cái)
+ const CU_ART={250:'6SL3246-0BA22-1FA0',240:'6SL3244-0BB13-1PA1'};
+ const BOP_ART='6SL3255-0AA00-4CA1';
+ const subRow=(label,code,aVal,frame,qty)=>`<tr class="subrow"><td class="l">↳ ${label}</td><td></td><td>${qty||''}</td><td class="l">${code}</td><td></td><td>${aVal||''}</td><td>${frame||''}</td><td></td><td></td></tr>`;
  $('m3tab').querySelector('tbody').innerHTML=M3_MOTORS.map((m,i)=>{const l=m.locked;
-  const sel=g?pickG120(m.kw):null;
-  const fsw=sel?pickFuseSwitch(sel.fuseA):null;
-  if(g&&!m.opt)m.opt={lr:false,br:false,or:false,if:false};
+  if(g&&!m.opt)m.opt={lr:false,br:false,or:false,if:false,lfa:true,bop:false,cu240:false};
   if(g&&m.opt.if===undefined)m.opt.if=false;
+  if(g&&m.opt.lfa===undefined)m.opt.lfa=true;
+  if(g&&m.opt.bop===undefined)m.opt.bop=false;
+  if(g&&m.opt.cu240===undefined)m.opt.cu240=false;
+  const sel=g?pickG120(m.kw,m.opt.lfa):null;
+  const fsw=sel?pickFuseSwitch(sel.fuseA):null;
   let rows=`<tr>
   <td class="l">${l?m.n:`<input value="${m.n}" onchange="eM3(${i},'n',this.value)">`}</td>
-  <td>${l?fx(m.kw,1):`<input type="number" step="0.5" value="${m.kw}" onchange="eM3(${i},'kw',this.value)">`}</td>
+  <td>${l?(m.kwLabel||fx(m.kw,1)):`<input type="number" step="0.5" value="${m.kw}" onchange="eM3(${i},'kw',this.value)">`}</td>
   <td>${l?m.q:`<input type="number" step="1" min="1" value="${m.q}" onchange="eM3(${i},'q',this.value)">`}</td>`+
   (g?`<td class="l">${sel.art}${sel.overRange?' *':''}</td><td>${fx(sel.kw,2)}</td><td>${fx(sel.a,1)}</td><td>${sel.frame}</td>
   <td class="opt">
+   <label title="${T('m3_opt_lfa')}${sel.hasNoFilterVariant?'':' — '+T('m3_lfa_forced')}"><input type="checkbox" ${m.opt.lfa?'checked':''} ${sel.hasNoFilterVariant?'':'disabled'} onchange="toggleM3Opt(${i},'lfa',this.checked)">LFA</label>
    <label title="${T('m3_opt_lr')}"><input type="checkbox" ${m.opt.lr?'checked':''} onchange="toggleM3Opt(${i},'lr',this.checked)">LR</label>
    <label title="${T('m3_opt_br')}"><input type="checkbox" ${m.opt.br?'checked':''} onchange="toggleM3Opt(${i},'br',this.checked)">BR</label>
    <label title="${T('m3_opt_or')}"><input type="checkbox" ${m.opt.or?'checked':''} onchange="toggleM3Opt(${i},'or',this.checked)">OR</label>
    <label title="${T('m3_opt_if')}"><input type="checkbox" ${m.opt.if?'checked':''} onchange="toggleM3Opt(${i},'if',this.checked)">IF</label>
+   <label title="${T('m3_opt_cu')}"><input type="checkbox" ${m.opt.cu240?'checked':''} onchange="toggleM3Opt(${i},'cu240',this.checked)">CU240</label>
+   <label title="${T('m3_opt_bop')}"><input type="checkbox" ${m.opt.bop?'checked':''} onchange="toggleM3Opt(${i},'bop',this.checked)">BOP</label>
   </td>`:'')+
   `<td style="text-align:center">${l?'':`<button class="btn sm" onclick="delM3(${i})">×</button>`}</td></tr>`;
+  if(g){
+   const cuLabel=m.opt.cu240?'Control Unit CU240':'Control Unit CU250';
+   rows+=subRow(cuLabel,m.opt.cu240?CU_ART[240]:CU_ART[250],'','',OPT_QTY.cu*m.q);
+  }
+  if(g&&m.opt.bop)rows+=subRow(OPT_LABEL.bop,BOP_ART,'','',OPT_QTY.bop*m.q);
   if(g&&m.opt.if){
    rows+=subRow(T('m3_opt_fsd'),fsw.art,fx(fsw.iu,0),fsw.size,OPT_QTY.fsd*m.q);
    rows+=subRow(OPT_LABEL.if,sel.fuseArt,fx(sel.fuseA,0),fsw.size,OPT_QTY.if*m.q);
@@ -1235,9 +1318,9 @@ function renderM3tab(){
   return rows;}).join('');
 }
 function eM3(i,k,v){M3_MOTORS[i][k]=(k==='n')?v:(parseFloat(v)||0);renderM3tab();}
-function addM3Motor(){M3_MOTORS.push({n:'Động cơ mới',kw:5.5,q:1,locked:false,opt:{lr:false,br:false,or:false,if:false}});renderM3tab();}
+function addM3Motor(){M3_MOTORS.push({n:'Động cơ mới',kw:5.5,q:1,locked:false,opt:{lr:false,br:false,or:false,if:false,lfa:true,bop:false,cu240:false}});renderM3tab();}
 function delM3(i){M3_MOTORS.splice(i,1);renderM3tab();}
-function toggleM3Opt(i,k,v){if(!M3_MOTORS[i].opt)M3_MOTORS[i].opt={lr:false,br:false,or:false,if:false};M3_MOTORS[i].opt[k]=v;renderM3tab();}
+function toggleM3Opt(i,k,v){if(!M3_MOTORS[i].opt)M3_MOTORS[i].opt={lr:false,br:false,or:false,if:false,lfa:true,bop:false,cu240:false};M3_MOTORS[i].opt[k]=v;renderM3tab();}
 
 
 /* ================= CHẾ ĐỘ 3 — thanh dẫn điện & CHẾ ĐỘ 4 — yêu cầu gói ================= */
