@@ -143,6 +143,14 @@
   .login-card .btn:hover{background:#35ADA3}
   .login-err{color:#FF8A75;font-size:12px;margin-bottom:12px}
   @media print{.draw{background:#fff}.btn,.slid,.tools,header select{display:none}body{background:#fff}}
+  .modalOverlay{position:fixed;inset:0;background:rgba(10,14,20,.55);z-index:1500;display:flex;align-items:center;justify-content:center}
+  .modalOverlay.hide{display:none}
+  .modalBox{background:var(--card);border:1px solid var(--rule);padding:30px 34px 24px;width:300px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+  .modalBox .modalIcon{font-size:30px;margin-bottom:8px}
+  .modalBox h3{margin:0 0 6px;font-size:17px;color:var(--ink)}
+  .modalBox .hint{margin:0 0 18px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .modalBox .btn{padding:6px 18px;font-weight:600}
+  .breadcrumb{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--rule);display:inline-block;padding:5px 12px;margin-top:10px;letter-spacing:.03em}
 </style>
 </head>
 <body>
@@ -155,6 +163,14 @@
     <div class="lrow"><label data-t="lg_pass">Mật khẩu</label><input id="loginPass" type="password" autocomplete="current-password"></div>
     <div id="loginErr" class="login-err hide" data-t="lg_err">Sai tài khoản hoặc mật khẩu</div>
     <button class="btn" onclick="tryLogin()" data-t="lg_btn" style="width:100%">Đăng nhập</button>
+  </div>
+</div>
+<div id="wipModal" class="modalOverlay hide">
+  <div class="modalBox">
+    <div class="modalIcon">⏳</div>
+    <h3 data-t="wip_title">Hệ thống đang cập nhật</h3>
+    <p class="hint" data-t="wip_body">Định dạng này đang được hoàn thiện, vui lòng quay lại sau.</p>
+    <button class="btn" onclick="closeWipModal()">✕</button>
   </div>
 </div>
 <div class="wrap hide" id="appWrap">
@@ -357,6 +373,7 @@
 
   <div id="m3_body" class="hide">
     <button class="btn sm" id="m3_body_back" onclick="m3BackFam()" data-t="b_back4">← Đổi dòng biến tần</button>
+    <div class="breadcrumb" id="m3_breadcrumb"></div>
     <div class="card" style="margin-top:10px">
       <h2 data-t="h_mot3">Danh sách động cơ dùng để chọn biến tần</h2>
       <div class="scroll"><table id="m3tab"><thead><tr id="m3thead">
@@ -366,11 +383,6 @@
         <button class="btn sm" onclick="addM3Motor()" data-t="b_addm">+ Thêm động cơ</button>
       </div>
       <p class="hint" id="m3_vfdNote" style="margin-top:8px" data-t="m3_vfdNote">* Động cơ vượt dải bảng chọn G120 (&gt; 250 kW) — cần dòng biến tần khác (ví dụ S120).</p>
-    </div>
-
-    <div class="card" style="text-align:center;padding:60px 20px">
-      <h2 style="margin-bottom:10px" data-t="m3_wip_h">Đang hoàn thiện</h2>
-      <p class="hint" style="font-size:13px" data-t="m3_wip_p">Công cụ lựa chọn biến tần và thiết bị đóng cắt cho cẩu trục (mặc định Siemens) đang được xây dựng. Vui lòng quay lại sau.</p>
     </div>
   </div>
 
@@ -400,6 +412,7 @@ vi:{lg_sub:"Đăng nhập để tiếp tục",lg_user:"Tài khoản",lg_pass:"M�
  m3_noMotors:"Chưa có động cơ nào ở Mode 1 — vào Mode 1 nhập thông số trước, hoặc chọn “Tính với thông số động cơ mới”.",
  m3_famh:"Chọn dòng biến tần Siemens",
  b_back3b:"← Đổi dòng biến tần",
+ wip_title:"Tính năng chưa sẵn sàng hoạt động",wip_body:"Vui lòng quay lại sau.",
  m3_s120fmt_h:"Chọn định dạng SINAMICS S120",
  m3_s120fmt_p:"S120 có 3 định dạng cơ khí khác nhau, chọn theo cấu trúc hệ truyền động.",
  m3_s120fmt1_tag:"ĐỊNH DẠNG 1",
@@ -468,6 +481,7 @@ en:{lg_sub:"Sign in to continue",lg_user:"Username",lg_pass:"Password",lg_err:"I
  m3_noMotors:"No motors found in Mode 1 yet — enter the data in Mode 1 first, or choose “Calculate with new motor data”.",
  m3_famh:"Choose the Siemens VFD family",
  b_back3b:"← Change VFD family",
+ wip_title:"This feature isn't ready yet",wip_body:"Please check back later.",
  m3_s120fmt_h:"Choose the SINAMICS S120 format",
  m3_s120fmt_p:"S120 comes in 3 mechanical formats — pick based on your drive system structure.",
  m3_s120fmt1_tag:"FORMAT 1",
@@ -1192,6 +1206,10 @@ function m3Render(){
  if(step==='body'){
   renderM3tab();m3SyncFam();
   if($('m3_body_back'))$('m3_body_back').onclick=(M3_FAM==='s120')?m3BackS120Fmt:m3BackFam;
+  if($('m3_breadcrumb')){
+   const fmtName={booksize:'Booksize',blocksize:'Blocksize',chassis:'Chassis'}[M3_S120FMT]||'';
+   $('m3_breadcrumb').textContent=(M3_FAM==='g120'?'SINAMICS G120':'SINAMICS S120'+(fmtName?' / '+fmtName:''));
+  }
  }
 }
 function m3SetFam(f){M3_FAM=f;M3_S120FMT=null;m3Render();}
@@ -1270,7 +1288,12 @@ function m3Start(src){
 function m3Back(){M3_SRC=null;M3_FAM=null;M3_S120FMT=null;m3Render();}
 function m3BackFam(){M3_FAM=null;M3_S120FMT=null;m3Render();}
 function m3BackS120Fmt(){M3_S120FMT=null;m3Render();}
-function m3SetS120Fmt(fmt){M3_S120FMT=fmt;m3Render();}
+function m3SetS120Fmt(fmt){
+ if(fmt==='blocksize'){M3_S120FMT=fmt;m3Render();}
+ else{showWipModal();}
+}
+function showWipModal(){if($('wipModal'))$('wipModal').classList.remove('hide');}
+function closeWipModal(){if($('wipModal'))$('wipModal').classList.add('hide');}
 /* SINAMICS G120 — PM240-2 Power Module (380...480 V 3AC). Nguồn: catalog Siemens.
    [kW định mức, A định mức, Frame size, Mã hàng — with integrated line filter Class A (0.55-132kW) / Category C2 (160-250kW),
    Cuộn kháng đầu vào (line reactor), Điện trở hãm (braking resistor), Cuộn kháng đầu ra (output reactor),
@@ -1328,7 +1351,8 @@ function pickFuseSwitch(fuseA){
 function renderM3tab(){
  if(!$('m3tab'))return;
  m3RefreshFromMode1();
- const g=M3_FAM==='g120';
+ const g=M3_FAM==='g120'||(M3_FAM==='s120'&&M3_S120FMT==='blocksize');
+ const showCU=M3_FAM==='g120'; // Blocksize (S120) không dùng Control Unit CU240/CU250 rời như G120
  if($('m3_vfdNote'))$('m3_vfdNote').classList.toggle('hide',!g);
  $('m3thead').innerHTML=`<th class="l">${T('t_dev')}</th><th>kW</th><th>${T('t_q')}</th>`+
   (g?`<th>${T('m3_vfd_art')}</th><th>${T('m3_vfd_kw')}</th><th>${T('m3_vfd_a')}</th><th>${T('m3_vfd_fs')}</th><th>${T('m3_vfd_opt')}</th>`:'')+
@@ -1358,11 +1382,11 @@ function renderM3tab(){
    <label title="${T('m3_opt_br')}"><input type="checkbox" ${m.opt.br?'checked':''} onchange="toggleM3Opt(${i},'br',this.checked)">BR</label>
    <label title="${T('m3_opt_or')}"><input type="checkbox" ${m.opt.or?'checked':''} onchange="toggleM3Opt(${i},'or',this.checked)">OR</label>
    <label title="${T('m3_opt_if')}"><input type="checkbox" ${m.opt.if?'checked':''} onchange="toggleM3Opt(${i},'if',this.checked)">IF</label>
-   <label title="${T('m3_opt_cu')}"><input type="checkbox" ${m.opt.cu240?'checked':''} onchange="toggleM3Opt(${i},'cu240',this.checked)">CU240</label>
+   ${showCU?`<label title="${T('m3_opt_cu')}"><input type="checkbox" ${m.opt.cu240?'checked':''} onchange="toggleM3Opt(${i},'cu240',this.checked)">CU240</label>`:''}
    <label title="${T('m3_opt_bop')}"><input type="checkbox" ${m.opt.bop?'checked':''} onchange="toggleM3Opt(${i},'bop',this.checked)">BOP</label>
   </td>`:'')+
   `<td style="text-align:center">${l?'':`<button class="btn sm" onclick="delM3(${i})">×</button>`}</td></tr>`;
-  if(g){
+  if(g&&showCU){
    const cuLabel=m.opt.cu240?'Control Unit CU240':'Control Unit CU250';
    rows+=subRow(cuLabel,m.opt.cu240?CU_ART[240]:CU_ART[250],'','',OPT_QTY.cu*m.q);
   }
